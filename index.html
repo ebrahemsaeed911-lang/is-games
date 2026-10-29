@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="IS Games — pick a game and play with a friend." />
+    <title>IS Games</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="theme-color" content="#112129" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="hub">
+      <header class="hub__header">
+        <p class="hub__eyebrow">Two players · One screen</p>
+        <h1 class="hub__title">IS <span>Games</span></h1>
+        <p class="hub__subtitle">Pick a board and challenge your friend.</p>
+      </header>
+
+      <section class="games" aria-label="Games">
+        <a class="game-card" href="./XandO/index.html">
+          <div class="game-card__preview">
+            <div class="mini-board mini-board--3">
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell mini-cell--o">O</span>
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--o">O</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--o">O</span>
+            </div>
+          </div>
+
+          <div class="game-card__body">
+            <h2 class="game-card__name">X &amp; O</h2>
+            <p class="game-card__meta">Classic · 3 × 3 board</p>
+          </div>
+
+          <span class="game-card__play">Play</span>
+        </a>
+
+        <a class="game-card" href="./sega/index.html">
+          <div class="game-card__preview">
+            <div class="mini-board mini-board--3">
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell mini-cell--o">O</span>
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--o">O</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--x">X</span>
+              <span class="mini-cell"></span>
+              <span class="mini-cell mini-cell--o">O</span>
+            </div>
+          </div>
+
+          <div class="game-card__body">
+            <h2 class="game-card__name">Sega</h2>
+            <p class="game-card__meta">Move mode · 3 pieces each</p>
+          </div>
+
+          <span class="game-card__play">Play</span>
+        </a>
+      </section>
+
+      <footer class="hub__footer">
+        <span>Made for quick matches</span>
+        <span class="hub__dot" aria-hidden="true"></span>
+        <span>No install needed</span>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,465 @@
+:root {
+  --color-blue: #233d4a;
+  --color-light-blue: #a8bec9;
+  --color-dark-blue: #192a32;
+  --color-darker-blue: #112129;
+  --color-orange: #f2b237;
+  --color-aqua: #31c4be;
+  --border-radius: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-dark-blue);
+  color: #eaf4f7;
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Blurred pattern background (reuses the artwork shipped with the games) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -15%;
+  background: url("./pattern.jpg") center / cover no-repeat;
+  opacity: 0.35;
+  filter: blur(45px) saturate(1.1);
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(49, 196, 190, 0.16),
+    transparent 60%
+  );
+  z-index: -1;
+}
+
+/* ---------- Layout ---------- */
+
+.hub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(3.2rem, 7vh, 5.5rem);
+  min-height: 100vh;
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: clamp(3.2rem, 7vh, 6rem) 2.4rem;
+}
+
+/* ---------- Header ---------- */
+
+.hub__header {
+  text-align: center;
+  animation: rise 0.6s ease both;
+}
+
+.hub__eyebrow {
+  display: inline-block;
+  margin-bottom: 1.6rem;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid rgba(49, 196, 190, 0.35);
+  border-radius: 999px;
+  background: rgba(49, 196, 190, 0.08);
+  color: var(--color-aqua);
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hub__title {
+  font-size: clamp(3.6rem, 8vw, 6.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.hub__title span {
+  color: var(--color-orange);
+}
+
+.hub__subtitle {
+  margin-top: 1.4rem;
+  font-size: 1.6rem;
+  color: var(--color-light-blue);
+}
+
+/* ---------- Game cards ---------- */
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem;
+  width: 100%;
+}
+
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2.4rem 2.4rem 3rem;
+  border-radius: calc(var(--border-radius) * 1.6);
+  background: var(--color-blue);
+  box-shadow: 0 1rem 0 var(--color-darker-blue),
+    0 2rem 4rem rgba(0, 0, 0, 0.35);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s ease, box-shadow 0.25s ease,
+    background-color 0.25s ease;
+  animation: rise 0.6s ease both;
+}
+
+.game-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-0.8rem);
+  background: #284756;
+  box-shadow: 0 1.8rem 0 var(--color-darker-blue),
+    0 3rem 5rem rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+
+.game-card:focus-visible {
+  box-shadow: 0 1.8rem 0 var(--color-darker-blue),
+    0 0 0 0.3rem var(--color-aqua);
+}
+
+.game-card:active {
+  transform: translateY(-0.2rem);
+  box-shadow: 0 0.8rem 0 var(--color-darker-blue),
+    0 1.4rem 3rem rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Board preview ---------- */
+
+.game-card__preview {
+  display: grid;
+  place-items: center;
+  padding: 2.4rem;
+  border-radius: var(--border-radius);
+  background: var(--color-dark-blue);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.mini-board {
+  display: grid;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 19rem;
+  aspect-ratio: 1;
+}
+
+.mini-board--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mini-board--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.mini-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  background: var(--color-blue);
+  font-family: "Rubik Mono One", "Segoe UI", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  line-height: 1;
+  color: transparent;
+}
+
+.mini-board--4 .mini-cell {
+  font-size: clamp(1.2rem, 3vw, 1.9rem);
+  border-radius: 0.4rem;
+}
+
+.mini-cell--x {
+  color: var(--color-aqua);
+}
+
+.mini-cell--o {
+  color: var(--color-orange);
+}
+
+/* ---------- Card text ---------- */
+
+.game-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.game-card__name {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.game-card__meta {
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  color: var(--color-light-blue);
+}
+
+.game-card__play {
+  position: absolute;
+  right: 2.4rem;
+  bottom: 2.4rem;
+  padding: 0.8rem 1.8rem;
+  border-radius: 999px;
+  background: var(--color-aqua);
+  color: var(--color-darker-blue);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.game-card:hover .game-card__play,
+.game-card:focus-visible .game-card__play {
+  background: var(--color-orange);
+  transform: translateX(0.3rem);
+}
+
+/* ---------- Footer ---------- */
+
+.hub__footer {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 1.3rem;
+  color: var(--color-light-blue);
+  animation: rise 0.6s ease 0.2s both;
+}
+
+.hub__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-aqua);
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+/* Small laptops / tablets */
+@media (max-width: 820px) {
+  .hub {
+    gap: clamp(2.6rem, 5vh, 4rem);
+    padding: clamp(2.8rem, 6vh, 4.5rem) 2rem;
+  }
+}
+
+/* Phones: the cards become compact horizontal rows */
+@media (max-width: 720px) {
+  html {
+    font-size: 56.25%;
+  }
+
+  .hub {
+    gap: 2.6rem;
+    padding: 3rem 1.6rem;
+  }
+
+  .games {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+
+  .game-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.6rem;
+    padding: 1.4rem;
+    border-radius: 1.8rem;
+    box-shadow: 0 0.7rem 0 var(--color-darker-blue),
+      0 1.6rem 3rem rgba(0, 0, 0, 0.35);
+  }
+
+  .game-card:hover,
+  .game-card:focus-visible {
+    transform: translateY(-0.4rem);
+    box-shadow: 0 1.1rem 0 var(--color-darker-blue),
+      0 2rem 3.6rem rgba(0, 0, 0, 0.4);
+  }
+
+  .game-card:active {
+    transform: translateY(-0.1rem);
+    box-shadow: 0 0.5rem 0 var(--color-darker-blue),
+      0 1rem 2rem rgba(0, 0, 0, 0.35);
+  }
+
+  .game-card__preview {
+    flex: 0 0 auto;
+    width: 10rem;
+    padding: 0.9rem;
+    border-radius: 1.2rem;
+  }
+
+  .mini-board {
+    max-width: none;
+    gap: 0.5rem;
+  }
+
+  .mini-cell {
+    border-radius: 0.4rem;
+    font-size: 1.4rem;
+  }
+
+  .game-card__body {
+    flex: 1 1 auto;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .game-card__name {
+    font-size: 2rem;
+  }
+
+  .game-card__meta {
+    font-size: 1.2rem;
+  }
+
+  .game-card__play {
+    position: static;
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0;
+    padding: 0.8rem 1.4rem;
+    font-size: 1.1rem;
+  }
+
+  .hub__footer {
+    flex-direction: row;
+    gap: 1rem;
+    font-size: 1.2rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 420px) {
+  html {
+    font-size: 53%;
+  }
+
+  .hub {
+    gap: 2.2rem;
+    padding: 2.6rem 1.4rem;
+  }
+
+  .hub__header {
+    padding: 0 0.4rem;
+  }
+
+  .hub__eyebrow {
+    margin-bottom: 1.2rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 1rem;
+  }
+
+  .hub__subtitle {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+  }
+
+  .game-card {
+    gap: 1.2rem;
+    padding: 1.2rem;
+  }
+
+  .game-card__preview {
+    width: 8.4rem;
+    padding: 0.7rem;
+  }
+
+  .game-card__name {
+    font-size: 1.8rem;
+  }
+
+  .game-card__meta {
+    font-size: 1.1rem;
+  }
+
+  .game-card__play {
+    display: none;
+  }
+
+  .hub__footer {
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .hub__dot {
+    display: none;
+  }
+}
+
+/* Short landscape phones */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hub {
+    justify-content: flex-start;
+    gap: 2.4rem;
+    padding-top: 2.4rem;
+  }
+
+  .hub__subtitle {
+    display: none;
+  }
+
+  .games {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.6rem;
+  }
+
+  .game-card__preview {
+    display: none;
+  }
+}

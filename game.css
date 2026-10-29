@@ -1,0 +1,504 @@
+:root {
+  --color-blue: #233d4a;
+  --color-light-blue: #a8bec9;
+  --color-dark-blue: #192a32;
+  --color-darker-blue: #112129;
+  --color-orange: #f2b237;
+  --color-aqua: #31c4be;
+  --border-radius: 1rem;
+  --grid-rows: 3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-dark-blue);
+  color: #eaf4f7;
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Same background artwork as the home screen */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -15%;
+  background: url("./pattern.jpg") center / cover no-repeat;
+  opacity: 0.35;
+  filter: blur(45px) saturate(1.1);
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(49, 196, 190, 0.16),
+    transparent 60%
+  );
+  z-index: -1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 6rem 1.6rem;
+  font-size: 1.6rem;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-rows), 100px);
+  grid-template-rows: repeat(var(--grid-rows), 100px);
+  margin: auto auto 0;
+  gap: 1.5rem;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 3em;
+  color: var(--color-aqua);
+  background-color: var(--color-blue);
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  font-family: 'Rubik Mono One', sans-serif;
+}
+
+.cell--X {
+  color: var(--color-aqua);
+}
+
+.cell--O {
+  color: var(--color-orange);
+}
+
+.value {
+  z-index: 1;
+  user-select: none;
+}
+
+.cell:before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  bottom: -0.4rem;
+  border-radius: calc(var(--border-radius) / 2);
+  background-color: var(--color-darker-blue);
+}
+
+.cell:after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  border-radius: calc(var(--border-radius) / 2);
+  background-color: var(--color-blue);
+  transition: all 0.3s;
+}
+
+#reset {
+  display: block;
+  margin: 1.6rem auto auto;
+  cursor: pointer;
+  background: none;
+  outline: none;
+  border: 1px solid var(--color-aqua);
+  border-radius: calc(var(--border-radius) / 4);
+  padding: .4rem .8rem;
+  color: var(--color-aqua);
+}
+
+/* Back to main screen */
+.back {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .8rem 1.6rem;
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.75);
+  backdrop-filter: blur(6px);
+  color: var(--color-aqua);
+  font-family: Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-decoration: none;
+  transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+}
+
+.back:hover,
+.back:focus-visible {
+  background: var(--color-aqua);
+  border-color: var(--color-aqua);
+  color: var(--color-darker-blue);
+  outline: none;
+}
+
+/* Sound on/off button, created by sounds.js */
+.sound-toggle {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.8rem;
+  height: 3.8rem;
+  padding: 0;
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.75);
+  backdrop-filter: blur(6px);
+  color: var(--color-aqua);
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .25s ease, border-color .25s ease, opacity .25s ease;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  background: var(--color-aqua);
+  border-color: var(--color-aqua);
+  outline: none;
+}
+
+.sound-toggle--muted {
+  opacity: .55;
+}
+
+/* Status line under the board */
+.status {
+  margin-top: 1.8rem;
+  margin-bottom: 0;
+  min-height: 2rem;
+  max-width: 34rem;
+  color: var(--color-light-blue);
+  font-family: Arial, sans-serif;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* While a piece is held, highlight the empty cells it can move to */
+.board--holding .cell:not(.cell--X):not(.cell--O) {
+  cursor: copy;
+}
+
+.board--holding .cell:not(.cell--X):not(.cell--O):after {
+  background-color: #2f5564;
+  box-shadow: inset 0 0 0 2px rgba(49, 196, 190, 0.55);
+}
+
+.board--holding .cell--X,
+.board--holding .cell--O {
+  cursor: not-allowed;
+}
+
+/* ---------- Winning cells ---------- */
+
+.cell--win::after {
+  animation: winGlow 0.85s ease-in-out infinite alternate;
+}
+
+.cell--win .value {
+  animation: winPop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+@keyframes winGlow {
+  from {
+    box-shadow: 0 0 0 2px rgba(242, 178, 55, 0.45),
+      0 0 10px rgba(242, 178, 55, 0.25);
+  }
+  to {
+    box-shadow: 0 0 0 3px rgba(242, 178, 55, 0.95),
+      0 0 22px rgba(242, 178, 55, 0.6);
+  }
+}
+
+@keyframes winPop {
+  from {
+    transform: scale(0.55);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ---------- End of round modal ---------- */
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal.is-open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 50% 40%,
+      rgba(49, 196, 190, 0.16),
+      transparent 55%
+    ),
+    rgba(9, 19, 24, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.modal__card {
+  position: relative;
+  width: min(92vw, 36rem);
+  padding: 3.2rem 2.8rem 2.8rem;
+  border: 1px solid rgba(49, 196, 190, 0.28);
+  border-radius: 2rem;
+  background: linear-gradient(160deg, #28495a 0%, #192a32 60%, #112129 100%);
+  box-shadow: 0 2.4rem 6rem rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  text-align: center;
+  transform: translateY(2.4rem) scale(0.92);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.2, 1.45, 0.35, 1),
+    opacity 0.3s ease;
+}
+
+.modal.is-open .modal__card {
+  transform: none;
+  opacity: 1;
+}
+
+.modal__badge {
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  height: 9rem;
+  margin: 0 auto 2rem;
+  border: 2px solid rgba(49, 196, 190, 0.5);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(49, 196, 190, 0.28),
+    rgba(17, 33, 41, 0.9) 70%
+  );
+  box-shadow: 0 0 2.4rem rgba(49, 196, 190, 0.35),
+    inset 0 0 2rem rgba(49, 196, 190, 0.15);
+  color: var(--color-aqua);
+  font-family: "Rubik Mono One", "Segoe UI", sans-serif;
+  font-size: 4.4rem;
+  line-height: 1;
+}
+
+.modal.is-open .modal__badge {
+  animation: badgePop 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) both 0.12s;
+}
+
+.modal__badge--o {
+  border-color: rgba(242, 178, 55, 0.55);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(242, 178, 55, 0.28),
+    rgba(17, 33, 41, 0.9) 70%
+  );
+  box-shadow: 0 0 2.4rem rgba(242, 178, 55, 0.35),
+    inset 0 0 2rem rgba(242, 178, 55, 0.15);
+  color: var(--color-orange);
+}
+
+.modal__badge--draw {
+  border-color: rgba(168, 190, 201, 0.45);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(168, 190, 201, 0.22),
+    rgba(17, 33, 41, 0.9) 70%
+  );
+  box-shadow: 0 0 2.4rem rgba(168, 190, 201, 0.25),
+    inset 0 0 2rem rgba(168, 190, 201, 0.12);
+  color: var(--color-light-blue);
+}
+
+.modal__eyebrow {
+  color: var(--color-aqua);
+  font-family: Arial, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.modal--o .modal__eyebrow {
+  color: var(--color-orange);
+}
+
+.modal__title {
+  margin: 0.8rem 0 1rem;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.modal__text {
+  margin-bottom: 2.6rem;
+  color: var(--color-light-blue);
+  font-family: Arial, sans-serif;
+  font-size: 1.4rem;
+  line-height: 1.6;
+}
+
+.modal__button {
+  padding: 1.2rem 3.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-aqua);
+  color: var(--color-darker-blue);
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.modal__button:hover,
+.modal__button:focus-visible {
+  background: var(--color-orange);
+  outline: none;
+  transform: translateY(-0.2rem);
+}
+
+.modal__button:active {
+  transform: translateY(0);
+}
+
+@keyframes badgePop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal__card,
+  .modal__badge,
+  .cell--win::after,
+  .cell--win .value {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Phones: the board takes the full width with small side margins */
+@media (max-width: 600px) {
+  .container {
+    padding: 6rem 1.2rem;
+  }
+
+  .board {
+    grid-template-columns: repeat(var(--grid-rows), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 1;
+  }
+
+  .cell {
+    font-size: clamp(2.8rem, 15vw, 6rem);
+  }
+
+  .status {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .back {
+    top: 1.2rem;
+    left: 1.2rem;
+  }
+
+  .sound-toggle {
+    top: 1.2rem;
+    right: 1.2rem;
+    width: 3.4rem;
+    height: 3.4rem;
+    font-size: 1.5rem;
+  }
+}
+/* Short screens (landscape phones): keep the whole game visible */
+@media (max-height: 560px) {
+  .container {
+    padding: 4.8rem 1.2rem;
+  }
+
+  .board {
+    grid-template-columns: repeat(var(--grid-rows), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
+    aspect-ratio: 1;
+    width: min(100%, calc(100vh - 17rem));
+    min-width: 16rem;
+    max-width: none;
+  }
+
+  .cell {
+    font-size: clamp(1.6rem, 6.5vh, 3.2rem);
+  }
+
+  .status {
+    margin-top: 0.8rem;
+    font-size: 1.2rem;
+  }
+
+  #reset {
+    margin: 1rem auto auto;
+  }
+}

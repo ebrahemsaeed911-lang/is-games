@@ -1,0 +1,9 @@
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / tooling
+.vscode/
+.idea/
+*.log
