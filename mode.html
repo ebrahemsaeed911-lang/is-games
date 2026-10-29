@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Choose how to play: with a friend or against the computer." />
+    <title>Choose a mode · IS Games</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="theme-color" content="#112129" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="mode.css" />
+  </head>
+  <body class="choose-page">
+    <a class="choose__back" href="index.html">
+      <span aria-hidden="true">&#8592;</span> All games
+    </a>
+
+    <main class="choose">
+      <header class="choose__header">
+        <p class="choose__game">
+          <span class="choose__game-mark" id="game-mark">X</span>
+          <span id="game-name">X &amp; O</span>
+        </p>
+        <h1 class="choose__title">How do you want to play?</h1>
+        <p class="choose__subtitle" id="game-meta">Classic · 3 × 3 board</p>
+      </header>
+
+      <section class="modes" aria-label="Game modes">
+        <a class="mode-card mode-card--friend" id="friend-link" href="XandO/index.html">
+          <span class="mode-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="17" r="6" />
+              <path d="M7 39c0-6 5-10 11-10s11 4 11 10" />
+              <circle cx="33.5" cy="20.5" r="4.5" />
+              <path d="M30 29.5c5.6 0 10 3.6 10 9.5" />
+            </svg>
+          </span>
+          <span class="mode-card__name">Play with a friend</span>
+          <span class="mode-card__text">Two players, one screen. Pass the device and take turns.</span>
+          <span class="mode-card__cta">Start match <span aria-hidden="true">&#8594;</span></span>
+        </a>
+
+        <div class="mode-card mode-card--bot" aria-disabled="true">
+          <span class="mode-card__badge">Coming soon</span>
+          <span class="mode-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="15" width="30" height="24" rx="7" />
+              <path d="M24 15V8" />
+              <circle cx="24" cy="6" r="2.4" />
+              <path d="M17.5 25.5v2M30.5 25.5v2" />
+              <path d="M18.5 33h11" />
+            </svg>
+          </span>
+          <span class="mode-card__name">Play with the computer</span>
+          <span class="mode-card__text">Face an AI opponent on the same board. Same rules, no waiting.</span>
+          <span class="mode-card__cta">In the works</span>
+        </div>
+      </section>
+
+      <p class="choose__hint">
+        <span class="choose__hint-dot" aria-hidden="true"></span>
+        No install, no sign-in. Just pick a side.
+      </p>
+    </main>
+
+    <script>
+      // Presentation only: fills the screen with the game picked on the home page.
+      const GAMES = {
+        xando: {
+          name: "X & O",
+          mark: "X",
+          meta: "Classic · unlimited pieces",
+          link: "XandO/index.html",
+          board: [["x", 0], ["o", 2], ["x", 4], ["o", 3], ["x", 1], ["o", 8]]
+        },
+        sega: {
+          name: "Sega",
+          mark: "O",
+          meta: "Move mode · 3 pieces each",
+          link: "sega/index.html",
+          board: [["x", 0], ["o", 2], ["x", 1], ["o", 4], ["x", 3], ["o", 5]]
+        }
+      };
+
+      const key = new URLSearchParams(location.search).get("game");
+      const game = GAMES[key] || GAMES.xando;
+
+      document.title = game.name + " · Choose a mode";
+      document.getElementById("game-name").textContent = game.name;
+      document.getElementById("game-mark").textContent = game.mark;
+      document.getElementById("game-mark").classList.add(
+        game.mark === "O" ? "choose__game-mark--o" : "choose__game-mark--x"
+      );
+      document.getElementById("game-meta").textContent = game.meta;
+      document.getElementById("friend-link").href = game.link;
+    </script>
+  </body>
+</html>
