@@ -40,12 +40,15 @@ is `attack - 0.9 × defence`:
 
 - **Forks** — two open threats at once — outweigh any single line, so it takes them and
   tries not to hand you one.
-- **Wins and blocks** are decided before scoring, so it never misses a line it can take
-  or a line it must stop.
+- A **win** on the board is always taken.
+- About **one move in three** it stops paying attention and plays somewhere else instead
+  of blocking you — that is the gap you play for.
 - On a tie it prefers the centre, then the corners.
 
-`node XandO/ai.test.js` plays every possible line of play against it: the computer
-never loses and, moving second, it draws against perfect play.
+There are two levels: `normal`, which the game uses, and `hard`, which is the same
+engine with the slip turned off. `node XandO/ai.test.js` checks both — `hard` is played
+against every possible line and never loses (it draws against perfect play), while
+`normal` is played against an ordinary player and has to be beatable.
 
 <p align="center">
   <img src="docs/xando-bot.png" width="49%" alt="X & O against the computer" />
@@ -56,7 +59,7 @@ never loses and, moving second, it draws against perfect play.
 
 - **Two rule sets, two clean scripts** - `XandO/xando.js` and `sega/sega.js` are independent, so neither game is cluttered with branches for the other.
 - **Mode screen** - one shared `mode.html?game=xando|sega` picks up the game you chose on the home screen, so both games get the same "friend or computer" step without duplicated markup. The computer card is live for X & O and marked "coming soon" for Sega.
-- **Computer opponent** - `XandO/ai.js` scores every empty cell with a probability model, then plays the best one. It answers after a short "thinking" beat and blocks the board while it moves.
+- **Computer opponent** - `XandO/ai.js` scores every empty cell with a probability model, then plays the best one. It answers after a short "thinking" beat and blocks the board while it moves. The default level still slips up now and then, so a round is winnable.
 - **Shared look** - one `game.css` for both boards, with the same artwork and palette as the home screen.
 - **Animated result modal** - the winning line glows first, then a card pops in for a win or a draw. Close it with the button, the backdrop or <kbd>Esc</kbd>, and the board resets.
 - **Sound effects** - placement, pick-up, illegal move, win and draw are synthesised with the Web Audio API at runtime, so the repo ships no audio files. The 🔊 button mutes everything and remembers the choice.
@@ -126,6 +129,6 @@ Any current Chrome, Edge, Firefox or Safari. The code uses optional chaining and
 
 بعد اختيار اللعبة بتظهر شاشة اختيار الوضع: **اللعب مع صاحبك** على نفس الجهاز، أو **اللعب مع الكمبيوتر**.
 
-لعبة **X & O** بقى فيها خصم كمبيوتر شغّال: انت دايمًا **X** وبتبدأ، والكمبيوتر بيلعب **O**. الكمبيوتر بيحسب لكل خانة فاضية احتمال إنها توصّله لخط فوز (الخط المفتوح = نقطة، نص الخط = 12، الخط الكامل = فوز)، وبيخصم منها احتمال إن الخانة تفيدك انت كمان، وبياخد باله من «الشوكة» (تهديدين في نفس الوقت) قبل ما تيجي. لما الجولة تخلص، البطل بيتعرض باسمه: **You** أو **CPU** بدل X و O.
+لعبة **X & O** بقى فيها خصم كمبيوتر شغّال: انت دايمًا **X** وبتبدأ، والكمبيوتر بيلعب **O**. الكمبيوتر بيحسب لكل خانة فاضية احتمال إنها توصّله لخط فوز (الخط المفتوح = نقطة، نص الخط = 12، الخط الكامل = فوز)، وبيخصم منها احتمال إن الخانة تفيدك انت كمان. بياخد أي فوز شايفه، بس في **حوالي حركة من كل 3** بيسرح ويلعب حاجة تانية بدل ما يسدّ عليك — ودي الفرصة اللي تكسب منها. فيه كمان مستوى **hard** مش بيغلط خالص ومستحيل تكسبه. لما الجولة تخلص، البطل بيتعرض باسمه: **You** أو **CPU** بدل X و O.
 
-تقدر تتأكد بنفسك إنه مش بيخسر: `node XandO/ai.test.js` — بيجرّب كل مسار لعب ممكن ضد الكمبيوتر.
+تأكد بنفسك: `node XandO/ai.test.js` — بيختبر إن مستوى **hard** مش بيخسر ولا مرة، وإن المستوى العادي **ممكن تكسبه**.

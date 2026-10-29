@@ -20,9 +20,15 @@
  * resolved before scoring, so the computer never misses a line it can take or
  * a line it must stop.
  *
+ * Two levels are available:
+ *   - "normal" (the default, used by the game): it still takes every win it can
+ *     see, but about one move in three it looks away instead of blocking you,
+ *     so a person can actually win a round.
+ *   - "hard": always plays its best move. It cannot be beaten.
+ *
  * The engine is DOM-free so it can be exercised from tests: it exposes
- * `chooseMove(cells, me, them)` where `cells` is a flat array of 9 entries
- * holding "X", "O" or null.
+ * `chooseMove(cells, me, them, level)` where `cells` is a flat array of 9
+ * entries holding "X", "O" or null.
  */
 (function (global) {
   "use strict";
@@ -55,6 +61,12 @@
   const FORK_BONUS = 600;
   const FORK_PENALTY = 800;
   const FORK_RISK_PENALTY = 250;
+
+  // How often each level ignores a line it should block.
+  const LEVELS = {
+    normal: { missBlock: 0.3 },
+    hard: { missBlock: 0 },
+  };
 
   // Only ever used to break exact ties: centre first, then corners, then edges.
   const POSITION_VALUE = [0.2, 0, 0.2, 0, 0.5, 0, 0.2, 0, 0.2];
@@ -154,26 +166,43 @@
   }
 
   /* The only public entry point: returns the index the computer plays. */
-  function chooseMove(cells, me, them) {
+  function chooseMove(cells, me, them, level) {
     const empty = emptyCells(cells);
 
     if (!empty.length) return -1;
 
-    // 1. Finish the game when a line is one move away.
+    // 1. Finish the game when a line is one move away. Even the relaxed level
+    //    takes a win it can see, so it never looks broken.
     const winning = empty.find((index) => winsWith(cells, index, me));
 
     if (winning !== undefined) return winning;
 
-    // 2. Stop the player from finishing theirs.
+    const { missBlock } = LEVELS[level] || LEVELS.normal;
     const threats = empty.filter((index) => winsWith(cells, index, them));
 
-    if (threats.length) return pickBest(cells, threats, me, them);
+    // 2. Stop the player from finishing theirs. The normal level lets a few of
+    //    these go by, which is where an ordinary player gets a chance to win.
+    if (threats.length) {
+      const elsewhere = empty.filter((index) => !threats.includes(index));
+
+      if (missBlock > 0 && elsewhere.length && Math.random() < missBlock) {
+        return pickBest(cells, elsewhere, me, them);
+      }
+
+      return pickBest(cells, threats, me, them);
+    }
 
     // 3. Otherwise play the cell with the best win odds.
     return pickBest(cells, empty, me, them);
   }
 
-  const api = { chooseMove, scoreMove: rate, potential, winningMoves: countWins, LINES };
+  const api = {
+    chooseMove,
+    scoreMove: rate,
+    potential,
+    countWinningMoves: countWins,
+    LINES,
+  };
 
   if (typeof module === "object" && module.exports) module.exports = api;
 

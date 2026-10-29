@@ -176,7 +176,8 @@ function startComputerTurn() {
     const index = window.XandoAI.chooseMove(
       board.flat(),
       COMPUTER,
-      HUMAN
+      HUMAN,
+      "normal"
     );
 
     if (index < 0) return;
