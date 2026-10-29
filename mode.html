@@ -42,8 +42,7 @@
           <span class="mode-card__cta">Start match <span aria-hidden="true">&#8594;</span></span>
         </a>
 
-        <a class="mode-card mode-card--bot" id="computer-link" href="#" aria-disabled="true">
-          <span class="mode-card__badge">Coming soon</span>
+        <a class="mode-card mode-card--bot" id="computer-link" href="XandO/index.html?mode=computer" aria-disabled="false">
           <span class="mode-card__icon" aria-hidden="true">
             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="15" width="30" height="24" rx="7" />
@@ -55,7 +54,7 @@
           </span>
           <span class="mode-card__name">Play with the computer</span>
           <span class="mode-card__text">Face an AI opponent on the same board. Same rules, no waiting.</span>
-          <span class="mode-card__cta">In the works</span>
+          <span class="mode-card__cta">Play now <span aria-hidden="true">&#8594;</span></span>
         </a>
       </section>
 
@@ -80,7 +79,7 @@
           mark: "O",
           meta: "Move mode · 3 pieces each",
           friend: "sega/index.html",
-          computer: null,
+          computer: "sega/index.html?mode=computer",
         },
       };
 
@@ -101,11 +100,13 @@
       if (game.computer) {
         computerCard.href = game.computer;
         computerCard.setAttribute("aria-disabled", "false");
-        computerCard.querySelector(".mode-card__badge")?.remove();
-        computerCard.querySelector(".mode-card__cta").textContent = "Play now →";
+        computerCard.querySelector(".mode-card__cta").innerHTML =
+          'Play now <span aria-hidden="true">\u2192</span>';
       } else {
         computerCard.removeAttribute("href");
+        computerCard.setAttribute("aria-disabled", "true");
         computerCard.tabIndex = -1;
+        computerCard.querySelector(".mode-card__cta").textContent = "In the works";
       }
     </script>
   </body>

@@ -1,28 +1,41 @@
 /*
- * Sega \u2014 move mode.
+ * Sega — move mode.
  *
  * Rules:
  *   - Each player can have at most MAX_PIECES pieces on the board.
  *   - On your turn you may place a new piece, or move one of your own pieces
  *     to an empty cell.
  *   - A win is a full row or a full column. Diagonals do NOT count.
+ *
+ * Two ways to play, chosen on the mode screen:
+ *   - friend:   two players share the screen, X always starts.
+ *   - computer: the player is X, the computer is O and answers on its own
+ *               (see ai.js for how it picks a move).
  */
 
 const MAX_PIECES = 3;
 const ROWS = 3;
 
+const MODE = new URLSearchParams(location.search).get("mode");
+const VS_COMPUTER = MODE === "computer";
+const HUMAN = "X";
+const COMPUTER = "O";
+
 let currentPlayer = "X";
 let board = emptyBoard();
 let held = null; // { index, row, col } while a piece is picked up
 let gameOver = false;
+let thinking = false;
 let statusTimer = null;
 let endTimer = null;
+let aiTimer = null;
 
 const boardElement = () => document.querySelector(".board");
 const cells = () => [...document.querySelectorAll(".cell")];
 const statusElement = () => document.querySelector("#status");
 const at = (index) => [Math.floor(index / ROWS), index % ROWS];
 const sound = (name) => window.playSound?.(name);
+const isComputerTurn = () => VS_COMPUTER && currentPlayer === COMPUTER;
 
 function emptyBoard() {
   return Array.from({ length: ROWS }, () => Array(ROWS).fill(null));
@@ -32,12 +45,33 @@ function countPieces(player) {
   return board.flat().filter((mark) => mark === player).length;
 }
 
+/* ---------- Status line ---------- */
+
 function updateStatus() {
   const status = statusElement();
   if (!status) return;
 
+  status.classList.toggle("status--thinking", isComputerTurn() && !gameOver);
+
   if (held) {
-    status.textContent = `Player ${currentPlayer}: tap an empty cell to place the piece, or tap it again to cancel.`;
+    status.textContent = VS_COMPUTER
+      ? "Tap an empty cell to move your piece, or tap it again to cancel."
+      : `Player ${currentPlayer}: tap an empty cell to place the piece, or tap it again to cancel.`;
+    return;
+  }
+
+  if (VS_COMPUTER) {
+    if (!isComputerTurn()) {
+      const pieces = countPieces(HUMAN);
+
+      status.textContent =
+        pieces >= MAX_PIECES
+          ? "Your turn \u2014 tap one of your pieces to move it."
+          : `Your turn \u2014 place a piece (${pieces}/${MAX_PIECES}) or tap one of yours to move it.`;
+      return;
+    }
+
+    status.textContent = "Computer is thinking\u2026";
     return;
   }
 
@@ -141,26 +175,42 @@ function putBackHeld() {
   sound("pick");
 }
 
-function placeMark(cell, row, col) {
-  board[row][col] = currentPlayer;
+/* One function for every accepted move, so a placement and a relocation follow
+ * exactly the same win/turn logic. `from` is null when a new piece comes in. */
+function commitMove(from, to) {
+  const player = currentPlayer;
+  const [row, col] = at(to);
 
-  paint(cell, currentPlayer);
+  if (from !== null && from !== undefined) {
+    const [fromRow, fromCol] = at(from);
+
+    board[fromRow][fromCol] = null;
+    paint(cells()[from], null);
+    sound("pick");
+  }
+
+  board[row][col] = player;
+  paint(cells()[to], player);
   held = null;
-  setHoldingState();
-  sound("place");
+  boardElement()?.classList.remove("board--holding");
 
-  if (winningCells(currentPlayer)) {
-    highlightWinner(currentPlayer);
-    endRound(currentPlayer);
+  if (from === null || from === undefined) sound("place");
+  else setTimeout(() => sound("place"), 110);
+
+  if (winningCells(player)) {
+    highlightWinner(player);
+    endRound(player);
     return;
   }
 
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  currentPlayer = player === "X" ? "O" : "X";
   updateStatus();
+
+  if (isComputerTurn()) startComputerTurn();
 }
 
 function cellClickHandler(event, index) {
-  if (gameOver) return;
+  if (gameOver || thinking || isComputerTurn()) return;
 
   const cell = event.target.closest(".cell") || event.currentTarget;
   const [row, col] = at(index);
@@ -171,12 +221,16 @@ function cellClickHandler(event, index) {
       putBackHeld();
       setHoldingState();
     } else if (mark === null) {
-      placeMark(cell, row, col);
+      commitMove(held.index, index);
     } else if (mark === currentPlayer) {
       putBackHeld();
       pickUp(cell, index);
     } else {
-      flashStatus(`You can only move Player ${currentPlayer}'s pieces.`);
+      flashStatus(
+        VS_COMPUTER
+          ? "You can only move your own pieces."
+          : `You can only move Player ${currentPlayer}'s pieces.`
+      );
       sound("error");
     }
 
@@ -188,19 +242,55 @@ function cellClickHandler(event, index) {
   } else if (mark === null) {
     if (countPieces(currentPlayer) >= MAX_PIECES) {
       flashStatus(
-        `Player ${currentPlayer} already has ${MAX_PIECES} pieces \u2014 move one of them instead.`
+        VS_COMPUTER
+          ? `You already have ${MAX_PIECES} pieces \u2014 move one of them instead.`
+          : `Player ${currentPlayer} already has ${MAX_PIECES} pieces \u2014 move one of them instead.`
       );
       sound("error");
       return;
     }
 
-    placeMark(cell, row, col);
+    commitMove(null, index);
   } else {
     flashStatus(
-      `That's Player ${mark}'s piece. It's Player ${currentPlayer}'s turn.`
+      VS_COMPUTER
+        ? "That's the computer's piece."
+        : `That's Player ${mark}'s piece. It's Player ${currentPlayer}'s turn.`
     );
     sound("error");
   }
+}
+
+/* ---------- Computer turn ---------- */
+
+function setThinking(state) {
+  thinking = state;
+  boardElement()?.classList.toggle("board--locked", state);
+  statusElement()?.classList.toggle("status--thinking", state);
+}
+
+function startComputerTurn() {
+  setThinking(true);
+  updateStatus();
+
+  aiTimer = setTimeout(() => {
+    aiTimer = null;
+
+    if (gameOver) return;
+
+    setThinking(false);
+
+    const move = window.SegaAI?.chooseMove(
+      board.flat(),
+      COMPUTER,
+      HUMAN,
+      "normal"
+    );
+
+    if (!move) return;
+
+    commitMove(move.from ?? null, move.to);
+  }, 420 + Math.round(Math.random() * 260));
 }
 
 /* ---------- Round end ---------- */
@@ -211,22 +301,58 @@ function highlightWinner(player) {
   line?.forEach((index) => cells()[index].classList.add("cell--win"));
 }
 
-function endRound(player) {
-  gameOver = true;
-  sound("win");
-  endTimer = setTimeout(() => {
-    openModal({
+function resultFor(player) {
+  if (!VS_COMPUTER) {
+    return {
       mark: player,
       eyebrow: "Winner",
       title: `Player ${player} wins!`,
       text: "Nice line! The board resets for the next round.",
-    });
-  }, 200);
+    };
+  }
+
+  const playerWon = player === HUMAN;
+
+  return {
+    mark: playerWon ? "You" : "CPU",
+    word: true,
+    accent: playerWon ? "x" : "o",
+    eyebrow: "Winner",
+    title: playerWon ? "You win!" : "Computer wins",
+    text: playerWon
+      ? "You beat the computer \u2014 one more round?"
+      : "The computer found the line. Try again?",
+  };
+}
+
+function endRound(player) {
+  gameOver = true;
+  setThinking(false);
+  sound("win");
+
+  const status = statusElement();
+
+  if (status) {
+    status.classList.remove("status--thinking");
+    status.textContent = VS_COMPUTER
+      ? player === HUMAN
+        ? "You win!"
+        : "Computer wins."
+      : `Player ${player} wins!`;
+  }
+
+  const result = resultFor(player);
+
+  endTimer = setTimeout(() => openModal(result), 200);
 }
 
 function resetBoard() {
   clearTimeout(endTimer);
   clearTimeout(statusTimer);
+  clearTimeout(aiTimer);
+  endTimer = null;
+  statusTimer = null;
+  aiTimer = null;
 
   boardElement()?.remove();
   createBoard();
@@ -235,8 +361,9 @@ function resetBoard() {
   currentPlayer = "X";
   held = null;
   gameOver = false;
+  setThinking(false);
 
-  setHoldingState();
+  updateStatus();
 }
 
 /* ---------- Result modal ---------- */
@@ -262,16 +389,18 @@ modal.innerHTML = `
 `;
 document.body.appendChild(modal);
 
-function openModal({ mark, eyebrow, title, text }) {
+function openModal({ mark, eyebrow, title, text, accent, word }) {
   document.querySelector("#modal-mark").textContent = mark;
   document.querySelector("#modal-eyebrow").textContent = eyebrow;
   document.querySelector("#modal-title").textContent = title;
   document.querySelector("#modal-text").textContent = text;
 
   const badge = document.querySelector("#modal-badge");
+  const tone = accent || (mark === "O" ? "o" : "x");
 
-  badge.classList.toggle("modal__badge--o", mark === "O");
-  modal.classList.toggle("modal--o", mark === "O");
+  badge.classList.toggle("modal__badge--o", tone === "o");
+  badge.classList.toggle("modal__badge--word", Boolean(word));
+  modal.classList.toggle("modal--o", tone === "o");
 
   modal.classList.add("is-open");
   document.body.classList.add("modal-open");
@@ -302,5 +431,11 @@ document.querySelector("#reset").addEventListener("click", () => {
   sound("reset");
   resetBoard();
 });
+
+if (VS_COMPUTER) {
+  document.title = "Sega \u00b7 You vs. Computer";
+  document.querySelector(".back")?.setAttribute("href", "../mode.html?game=sega");
+}
+
 createBoard();
 updateStatus();

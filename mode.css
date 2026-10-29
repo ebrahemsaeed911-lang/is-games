@@ -242,21 +242,6 @@
   color: rgba(168, 190, 201, 0.65);
 }
 
-.mode-card__badge {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid rgba(242, 178, 55, 0.4);
-  border-radius: 999px;
-  background: rgba(242, 178, 55, 0.12);
-  color: var(--color-orange);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 /* ---------- Hint ---------- */
 
 .choose__hint {
@@ -348,18 +333,6 @@
     margin-top: 0.4rem;
   }
 
-  .mode-card__badge {
-    top: 1.2rem;
-    right: 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  /* only the bot card carries a badge, so only it needs room for one */
-  .mode-card--bot .mode-card__name,
-  .mode-card--bot .mode-card__text {
-    padding-right: 6.6rem;
-  }
-
   .choose__hint {
     font-size: 1.1rem;
     text-align: center;
@@ -398,25 +371,4 @@
     font-size: 1.2rem;
   }
 
-  .mode-card--bot .mode-card__badge {
-    position: static;
-    grid-area: badge;
-    justify-self: end;
-    align-self: start;
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
-  }
-
-  .mode-card--bot {
-    grid-template-areas:
-      "icon badge"
-      "icon name"
-      "icon text"
-      "icon cta";
-  }
-
-  .mode-card--bot .mode-card__name,
-  .mode-card--bot .mode-card__text {
-    padding-right: 0;
-  }
 }
