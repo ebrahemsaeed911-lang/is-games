@@ -221,6 +221,36 @@ body::after {
   cursor: not-allowed;
 }
 
+/* Computer turn: the board stops taking clicks until it has moved */
+.board--locked .cell {
+  cursor: progress;
+}
+
+.board--locked .cell:not(.cell--X):not(.cell--O):after {
+  background-color: #1f3843;
+}
+
+.board--locked .cell--X,
+.board--locked .cell--O {
+  cursor: progress;
+}
+
+/* "Computer is thinking…" */
+.status--thinking {
+  color: var(--color-aqua);
+  animation: statusPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  from,
+  to {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* ---------- Winning cells ---------- */
 
 .cell--win::after {
@@ -358,6 +388,15 @@ body.modal-open {
   color: var(--color-light-blue);
 }
 
+/* "You" / "CPU" instead of a single X or O */
+.modal__badge--word {
+  font-family: Arial, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .modal__eyebrow {
   color: var(--color-aqua);
   font-family: Arial, sans-serif;
@@ -432,7 +471,8 @@ body.modal-open {
   .modal__card,
   .modal__badge,
   .cell--win::after,
-  .cell--win .value {
+  .cell--win .value,
+  .status--thinking {
     animation: none !important;
     transition: none !important;
   }

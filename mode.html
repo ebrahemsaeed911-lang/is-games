@@ -42,7 +42,7 @@
           <span class="mode-card__cta">Start match <span aria-hidden="true">&#8594;</span></span>
         </a>
 
-        <div class="mode-card mode-card--bot" aria-disabled="true">
+        <a class="mode-card mode-card--bot" id="computer-link" href="#" aria-disabled="true">
           <span class="mode-card__badge">Coming soon</span>
           <span class="mode-card__icon" aria-hidden="true">
             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
@@ -56,7 +56,7 @@
           <span class="mode-card__name">Play with the computer</span>
           <span class="mode-card__text">Face an AI opponent on the same board. Same rules, no waiting.</span>
           <span class="mode-card__cta">In the works</span>
-        </div>
+        </a>
       </section>
 
       <p class="choose__hint">
@@ -72,16 +72,16 @@
           name: "X & O",
           mark: "X",
           meta: "Classic · unlimited pieces",
-          link: "XandO/index.html",
-          board: [["x", 0], ["o", 2], ["x", 4], ["o", 3], ["x", 1], ["o", 8]]
+          friend: "XandO/index.html",
+          computer: "XandO/index.html?mode=computer",
         },
         sega: {
           name: "Sega",
           mark: "O",
           meta: "Move mode · 3 pieces each",
-          link: "sega/index.html",
-          board: [["x", 0], ["o", 2], ["x", 1], ["o", 4], ["x", 3], ["o", 5]]
-        }
+          friend: "sega/index.html",
+          computer: null,
+        },
       };
 
       const key = new URLSearchParams(location.search).get("game");
@@ -94,7 +94,19 @@
         game.mark === "O" ? "choose__game-mark--o" : "choose__game-mark--x"
       );
       document.getElementById("game-meta").textContent = game.meta;
-      document.getElementById("friend-link").href = game.link;
+      document.getElementById("friend-link").href = game.friend;
+
+      const computerCard = document.getElementById("computer-link");
+
+      if (game.computer) {
+        computerCard.href = game.computer;
+        computerCard.setAttribute("aria-disabled", "false");
+        computerCard.querySelector(".mode-card__badge")?.remove();
+        computerCard.querySelector(".mode-card__cta").textContent = "Play now →";
+      } else {
+        computerCard.removeAttribute("href");
+        computerCard.tabIndex = -1;
+      }
     </script>
   </body>
 </html>
