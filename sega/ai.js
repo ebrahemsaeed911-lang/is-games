@@ -34,9 +34,14 @@
  *   what a fork left to the opponent costs, and it looks at the opponent's best
  *   answer before choosing. It is much harder to beat, though not perfect.
  *
- * The engine knows nothing about the DOM: `chooseMove(cells, me, them, level)`
- * takes a flat array of 9 entries holding "X", "O" or null and returns the move
- * object to play (or null when there is nothing to do).
+ * Neither level likes to shuffle. Given the moves it played on its last turns
+ * (`history`), it avoids sending a piece straight back where it came from and
+ * avoids playing the same move twice in a row, unless that move is the only way
+ * to stop the opponent's line.
+ *
+ * The engine knows nothing about the DOM: `chooseMove(cells, me, them, level,
+ * history)` takes a flat array of 9 entries holding "X", "O" or null and returns
+ * the move object to play (or null when there is nothing to do).
  */
 (function (global) {
   "use strict";
@@ -246,8 +251,40 @@
     return best;
   }
 
-  /* The only public entry point: returns the move the computer plays. */
-  function chooseMove(cells, me, them, level) {
+  const moveKey = (move) => `${move.from ?? "-"}>${move.to}`;
+
+  /* A piece that goes A -> B and is then sent straight back B -> A looks like
+   * the computer is stuck. The same is true of playing the identical move twice
+   * in a row. `history` holds the computer's own previous moves, oldest first. */
+  function repeats(move, history) {
+    if (!history || !history.length) return false;
+
+    const last = history[history.length - 1];
+
+    if (
+      last.from !== undefined &&
+      last.from !== null &&
+      move.from === last.to &&
+      move.to === last.from
+    ) {
+      return true;
+    }
+
+    const recent = new Set(history.slice(-2).map(moveKey));
+
+    return recent.has(moveKey(move));
+  }
+
+  /* Prefer fresh moves, but never leave the board without a move at all. */
+  function freshMoves(moves, history) {
+    const fresh = moves.filter((move) => !repeats(move, history));
+
+    return fresh.length ? fresh : moves;
+  }
+
+  /* The only public entry point: returns the move the computer plays.
+   * `history` is optional: the moves the computer played on its last turns. */
+  function chooseMove(cells, me, them, level, history) {
     const moves = legalMoves(cells, me);
 
     if (!moves.length) return null;
@@ -269,11 +306,19 @@
       const blocks = moves.filter((move) => threats.includes(move.to));
       const skipping = weights.missBlock > 0 && Math.random() < weights.missBlock;
 
-      if (blocks.length && !skipping) candidates = blocks;
+      // A repeat is only dropped when another block is available.
+      if (blocks.length && !skipping) candidates = freshMoves(blocks, history);
     }
 
     // 3. Otherwise play the move with the best win odds.
-    return pickBest(cells, candidates, me, them, level, weights.lookahead);
+    return pickBest(
+      cells,
+      freshMoves(candidates, history),
+      me,
+      them,
+      level,
+      weights.lookahead
+    );
   }
 
   const api = {

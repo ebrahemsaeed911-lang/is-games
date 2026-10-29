@@ -68,8 +68,11 @@ about to complete.
 The `normal` level the game uses has a weak sense of defence and misses roughly one
 block in three, so a player who watches the board can beat it. `hard` is the careful
 version: it defends fully, hunts for forks and looks at your best answer before it
-chooses. `node sega/ai.test.js` plays whole rounds against an ordinary player — every
-move has to be legal, `hard` must not lose, and `normal` has to stay beatable.
+chooses. Neither level shuffles: a piece it has just moved will not be sent straight
+back, and it never plays the same move twice in a row (the only exception is when that
+move is the sole way to stop your line). `node sega/ai.test.js` plays whole rounds
+against an ordinary player — every move has to be legal, `hard` must not lose, `normal`
+has to stay beatable, and no round may contain a repeated or undone move.
 
 <p align="center">
   <img src="docs/sega-bot.png" width="49%" alt="Sega against the computer" />
@@ -157,6 +160,6 @@ Any current Chrome, Edge, Firefox or Safari. The code uses optional chaining and
 
 لعبة **X & O** بقى فيها خصم كمبيوتر شغّال: انت دايمًا **X** وبتبدأ، والكمبيوتر بيلعب **O**. الكمبيوتر بيحسب لكل خانة فاضية احتمال إنها توصّله لخط فوز (الخط المفتوح = نقطة، نص الخط = 12، الخط الكامل = فوز)، وبيخصم منها احتمال إن الخانة تفيدك انت كمان. بياخد أي فوز شايفه، بس في **حوالي حركة من كل 3** بيسرح ويلعب حاجة تانية بدل ما يسدّ عليك — ودي الفرصة اللي تكسب منها. فيه كمان مستوى **hard** مش بيغلط خالص ومستحيل تكسبه. لما الجولة تخلص، البطل بيتعرض باسمه: **You** أو **CPU** بدل X و O.
 
-ولعبة **Sega** كمان بقى فيها كمبيوتر. لأن القطع بتتحرك، الكمبيوتر بيقيّم **الحركة** نفسها مش الخانة: بيجرب كل وضع جديد أو نقل لقطعة من قطعه، ويبص على البورد اللي هيسيبه الحركة دي، وبيحسبه على 6 خطوط الفوز (صفوف وأعمدة بس، مفيش أقطار) بنفس الأوزان 1 / 12 / 1000. بياخد أي فوز شايفه، وبيسد الخط اللي انت على وشك تكمله. المستوى العادي بيغلط في السد في حوالي **حركة من كل 3**، فتقدر تكسبه؛ وفيه مستوى **hard** بيدافع كويس وبيخطط للشوكتين وبيفكر في ردك قبل ما يلعب.
+ولعبة **Sega** كمان بقى فيها كمبيوتر. لأن القطع بتتحرك، الكمبيوتر بيقيّم **الحركة** نفسها مش الخانة: بيجرب كل وضع جديد أو نقل لقطعة من قطعه، ويبص على البورد اللي هيسيبه الحركة دي، وبيحسبه على 6 خطوط الفوز (صفوف وأعمدة بس، مفيش أقطار) بنفس الأوزان 1 / 12 / 1000. بياخد أي فوز شايفه، وبيسد الخط اللي انت على وشك تكمله. المستوى العادي بيغلط في السد في حوالي **حركة من كل 3**، فتقدر تكسبه؛ وفيه مستوى **hard** بيدافع كويس وبيخطط للشوكتين وبيفكر في ردك قبل ما يلعب. ومش بيرجّع القطعة اللي حرّكها فورًا لورا، ولا بيكرر نفس الحركة مرتين ورا بعض (إلا لو دي كانت الطريقة الوحيدة عشان يسد خطك).
 
 تأكد بنفسك: `node XandO/ai.test.js` — بيختبر إن مستوى **hard** مش بيخسر ولا مرة، وإن المستوى العادي **ممكن تكسبه**. و`node sega/ai.test.js` بيلعب جولات كاملة ويختبر إن كل حركة قانونية، وإن **hard** مش بيخسر، وإن العادي **ممكن تكسبه**.

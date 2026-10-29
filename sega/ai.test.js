@@ -121,7 +121,7 @@ for (let sample = 0; sample < 400; sample++) {
       check(
         isLegal(cells, move, me),
         `${level} returned an illegal move ${JSON.stringify(move)} for ${me} on ` +
-          JSON.stringify(cells)
+          JSON.stringify(cells),
       );
     }
   }
@@ -134,7 +134,7 @@ const winMove = ai.chooseMove(winNow, "O", "X", "hard");
 
 check(
   hasWon(applyMove(winNow, winMove, "O"), "O"),
-  "hard missed a win: " + JSON.stringify(winMove)
+  "hard missed a win: " + JSON.stringify(winMove),
 );
 
 const blockNow = ["X", "X", null, null, "O", null, null, null, null];
@@ -144,7 +144,7 @@ for (let attempt = 0; attempt < 30; attempt++) {
 
   check(
     move.to === 2,
-    "hard failed to block the only threat: " + JSON.stringify(move)
+    "hard failed to block the only threat: " + JSON.stringify(move),
   );
 }
 
@@ -155,7 +155,7 @@ const move = ai.chooseMove(blockByMoving, "O", "X", "hard");
 
 check(
   move.to === 2 && !hasWon(blockByMoving, "O"),
-  "hard did not stop the line by moving a piece in: " + JSON.stringify(move)
+  "hard did not stop the line by moving a piece in: " + JSON.stringify(move),
 );
 
 /* ---------- 3 & 4. Playing whole rounds ---------- */
@@ -174,7 +174,7 @@ function bestOf(cells, candidates, player) {
       applyMove(cells, candidate, player),
       player,
       them,
-      "hard"
+      "hard",
     );
 
     score += Math.random() * 0.3;
@@ -192,16 +192,17 @@ function ordinaryPlayer(cells, player) {
   const them = player === "X" ? "O" : "X";
   const moves = movesFor(cells, player);
   const wins = moves.filter((candidate) =>
-    hasWon(applyMove(cells, candidate, player), player)
+    hasWon(applyMove(cells, candidate, player), player),
   );
 
   if (wins.length) return wins[0];
 
   const blocks = moves.filter((candidate) =>
-    hasWon(applyMove(cells, candidate, them), them)
+    hasWon(applyMove(cells, candidate, them), them),
   );
 
-  if (blocks.length && Math.random() < 0.85) return bestOf(cells, blocks, player);
+  if (blocks.length && Math.random() < 0.85)
+    return bestOf(cells, blocks, player);
 
   const placements = moves.filter((candidate) => candidate.type === "place");
 
@@ -216,11 +217,18 @@ function ordinaryPlayer(cells, player) {
   return bestOf(cells, moves, player);
 }
 
+let repeats = 0;
+let undos = 0;
+
+const sameMove = (a, b) =>
+  (a.from ?? null) === (b.from ?? null) && a.to === b.to;
+
 function playRound(level) {
   let cells = Array(SIZE).fill(null);
   let turn = "X";
   const computer = "O";
   const player = "X";
+  const history = [];
 
   for (let ply = 0; ply < 100; ply++) {
     if (hasWon(cells, computer)) return "computer";
@@ -228,10 +236,28 @@ function playRound(level) {
 
     const move =
       turn === computer
-        ? ai.chooseMove(cells, computer, player, level)
+        ? ai.chooseMove(cells, computer, player, level, history)
         : ordinaryPlayer(cells, turn);
 
     if (!isLegal(cells, move, turn)) return "invalid";
+
+    if (turn === computer) {
+      const last = history[history.length - 1];
+
+      if (last && sameMove(last, move)) repeats++;
+      if (
+        last &&
+        last.from !== null &&
+        last.from !== undefined &&
+        move.from === last.to &&
+        move.to === last.from
+      ) {
+        undos++;
+      }
+
+      history.push({ type: move.type, from: move.from ?? null, to: move.to });
+      if (history.length > 4) history.shift();
+    }
 
     cells = applyMove(cells, move, turn);
     turn = turn === "X" ? "O" : "X";
@@ -253,7 +279,7 @@ const hard = run("hard", 400);
 console.log(
   "hard against an ordinary player:",
   `${hard.computer} computer wins, ${hard.player} player wins, ` +
-    `${hard.stall} unfinished, ${hard.invalid} illegal`
+    `${hard.stall} unfinished, ${hard.invalid} illegal`,
 );
 
 check(hard.invalid === 0, "hard produced an illegal move during a round");
@@ -265,17 +291,27 @@ const normal = run("normal", 400);
 console.log(
   "normal against an ordinary player:",
   `${normal.computer} computer wins, ${normal.player} player wins, ` +
-    `${normal.stall} unfinished, ${normal.invalid} illegal`
+    `${normal.stall} unfinished, ${normal.invalid} illegal`,
 );
 
 check(normal.invalid === 0, "normal produced an illegal move during a round");
-check(normal.player >= 160, "the normal level is too strong: it is hard to beat");
+check(
+  normal.player >= 160,
+  "the normal level is too strong: it is hard to beat",
+);
 check(normal.computer >= 40, "the normal level is too weak: it never wins");
 check(normal.stall <= 60, "the normal level shuffles pieces for too long");
+
+/* ---------- 5. No shuffling back and forth ---------- */
+
+console.log(
+  `computer shuffles: ${repeats} repeated moves, ${undos} immediate undo moves`,
+);
+
+check(repeats === 0, "the computer played the same move twice in a row");
+check(undos === 0, "the computer sent a piece straight back where it came from");
 
 if (failed) {
   console.error("ai.js did not pass");
   process.exit(1);
 }
-
-console.log("all checks passed");

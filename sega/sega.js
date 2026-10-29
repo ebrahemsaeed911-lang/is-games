@@ -29,6 +29,7 @@ let thinking = false;
 let statusTimer = null;
 let endTimer = null;
 let aiTimer = null;
+let aiHistory = []; // the computer's last moves, so it does not repeat itself
 
 const boardElement = () => document.querySelector(".board");
 const cells = () => [...document.querySelectorAll(".cell")];
@@ -284,10 +285,18 @@ function startComputerTurn() {
       board.flat(),
       COMPUTER,
       HUMAN,
-      "normal"
+      "normal",
+      aiHistory
     );
 
     if (!move) return;
+
+    aiHistory.push({
+      type: move.type,
+      from: move.from ?? null,
+      to: move.to,
+    });
+    if (aiHistory.length > 4) aiHistory.shift();
 
     commitMove(move.from ?? null, move.to);
   }, 420 + Math.round(Math.random() * 260));
@@ -361,6 +370,7 @@ function resetBoard() {
   currentPlayer = "X";
   held = null;
   gameOver = false;
+  aiHistory = [];
   setThinking(false);
 
   updateStatus();
