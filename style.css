@@ -204,6 +204,16 @@ body::after {
   color: var(--color-orange);
 }
 
+/* Arcade preview icons keep the same footprint as a mini board */
+.game-icon {
+  display: block;
+  width: 100%;
+  max-width: 19rem;
+  height: auto;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 0.6rem 1.6rem rgba(0, 0, 0, 0.35));
+}
+
 /* ---------- Card text ---------- */
 
 .game-card__body {

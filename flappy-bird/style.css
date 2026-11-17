@@ -1,0 +1,1215 @@
+/* ==========================================
+   FLAPPY BIRD - IS GAMES
+   Full Screen Responsive Design
+========================================== */
+
+/* 1. DESIGN TOKENS */
+
+:root {
+  --color-blue: #233d4a;
+  --color-light-blue: #a8bec9;
+  --color-dark-blue: #192a32;
+  --color-darker-blue: #112129;
+  --color-orange: #f2b237;
+  --color-aqua: #31c4be;
+
+  --color-white: #f5f5f5;
+  --color-muted: #969ba7;
+
+  --border-radius: 1rem;
+
+  --transition: 250ms ease;
+}
+
+/* 2. RESET */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+
+  background: var(--color-darker-blue);
+  color: var(--color-white);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 3. MAIN GAME CONTAINER */
+
+.flappy-game {
+  position: relative;
+  isolation: isolate;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+
+  min-height: 0;
+  max-width: none;
+
+  padding: 0;
+  margin: 0;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(49, 196, 190, 0.12),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      var(--color-darker-blue),
+      var(--color-dark-blue),
+      var(--color-blue)
+    );
+}
+
+/* Background glow */
+
+.flappy-game::before,
+.flappy-game::after {
+  content: "";
+
+  position: absolute;
+  z-index: -1;
+
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+}
+
+.flappy-game::before {
+  width: 35rem;
+  height: 35rem;
+
+  top: -15rem;
+  right: -12rem;
+
+  background: rgba(49, 196, 190, 0.1);
+}
+
+.flappy-game::after {
+  width: 28rem;
+  height: 28rem;
+
+  bottom: -15rem;
+  left: -10rem;
+
+  background: rgba(242, 178, 55, 0.07);
+}
+
+/* 4. PAGE HEADER AND FOOTER */
+
+.flappy-game__header {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 0.2rem;
+
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.5rem;
+
+  border-bottom: 1px solid rgba(49, 196, 190, 0.16);
+  background: rgba(17, 33, 41, 0.88);
+  text-align: center;
+}
+
+.flappy-game__eyebrow {
+  color: var(--color-aqua);
+
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+}
+
+.flappy-game__title {
+  color: var(--color-white);
+
+  font-size: clamp(1.2rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  line-height: 1.15;
+}
+
+.flappy-game__title span {
+  color: var(--color-aqua);
+}
+
+.flappy-game__subtitle {
+  max-width: 36rem;
+
+  color: var(--color-light-blue);
+
+  font-size: clamp(0.68rem, 1.5vw, 0.82rem);
+  line-height: 1.45;
+}
+
+.flappy-game__footer {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.45rem;
+
+  padding: 0.42rem 1rem max(0.42rem, env(safe-area-inset-bottom));
+
+  border-top: 1px solid rgba(49, 196, 190, 0.16);
+
+  background: rgba(17, 33, 41, 0.6);
+
+  color: var(--color-light-blue);
+
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.flappy-game__dot {
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background: var(--color-aqua);
+
+  opacity: 0.7;
+}
+
+/* 5. GAME CONTENT */
+
+.flappy-game__content {
+  position: relative;
+
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  padding: 0;
+  margin: 0;
+}
+
+/* 6. GAME BOARD */
+
+.flappy-game__board {
+  position: relative;
+
+  flex: 1 1 auto;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  padding: 0;
+  margin: 0;
+
+  overflow: hidden;
+
+  border: none;
+  border-radius: 0;
+
+  background: var(--color-darker-blue);
+}
+
+/* 7. CANVAS */
+
+#gameCanvas {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  max-width: none;
+  max-height: none;
+
+  margin: 0;
+  padding: 0;
+
+  border: none;
+  border-radius: 0;
+
+  outline: none;
+
+  cursor: pointer;
+
+  touch-action: none;
+}
+
+/* 8. TOP BAR: SCORE + SOUND + ACTIONS */
+
+.flappy-game__topbar {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 0.4rem 0.75rem;
+
+  width: 100%;
+
+  padding: max(0.5rem, env(safe-area-inset-top)) 0.85rem 0.5rem;
+
+  border-bottom: 1px solid rgba(49, 196, 190, 0.16);
+
+  background: rgba(17, 33, 41, 0.88);
+}
+
+.flappy-game__topbar-group {
+  display: flex;
+  align-items: center;
+
+  gap: clamp(0.4rem, 1vw, 0.6rem);
+
+  min-width: 0;
+}
+
+/* The mute button lives here (sounds.js), right beside the score */
+.flappy-game__topbar .sound-toggle {
+  position: static;
+
+  top: auto;
+  right: auto;
+
+  flex: 0 0 auto;
+
+  width: 2.4rem;
+  height: 2.4rem;
+
+  font-size: 1.05rem;
+}
+
+/* 9. SCORE */
+
+.flappy-game__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.12rem;
+
+  min-width: 118px;
+  min-height: 42px;
+
+  padding: 0.38rem 0.95rem;
+
+  border: 1px solid rgba(49, 196, 190, 0.35);
+  border-radius: 0.8rem;
+
+  background: rgba(17, 33, 41, 0.8);
+
+  color: var(--color-white);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.flappy-game__score-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+
+  gap: 0.32rem;
+
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.flappy-game__score-line--best {
+  padding-top: 0.08rem;
+
+  border-top: 1px solid rgba(168, 190, 201, 0.14);
+}
+
+.flappy-game__score-label {
+  color: var(--color-light-blue);
+
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.flappy-game__score-value {
+  color: var(--color-white);
+
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.flappy-game__score-value--best {
+  color: var(--color-orange);
+}
+
+.flappy-game__score-star {
+  color: var(--color-orange);
+
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+/* 10. START BUTTON */
+
+.flappy-game__start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0.65rem 1.1rem;
+
+  border: 1px solid var(--color-aqua);
+  border-radius: 0.8rem;
+
+  background: var(--color-aqua);
+
+  color: var(--color-darker-blue);
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  transition:
+    background var(--transition),
+    color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.flappy-game__start:hover {
+  background: transparent;
+
+  color: var(--color-aqua);
+
+  box-shadow: 0 0 20px rgba(49, 196, 190, 0.2);
+}
+
+.flappy-game__start:active {
+  transform: scale(0.96);
+}
+
+.flappy-game__start:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+/* 10a. PAUSE BUTTON */
+
+.flappy-game__pause {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.4rem;
+  height: 2.4rem;
+
+  padding: 0;
+
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+
+  background: rgba(17, 33, 41, 0.78);
+
+  color: var(--color-aqua);
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+
+  touch-action: manipulation;
+}
+
+.flappy-game__pause[hidden] {
+  display: none !important;
+}
+
+.flappy-game__pause svg {
+  display: block;
+
+  width: 0.95rem;
+  height: 0.95rem;
+
+  fill: currentColor;
+}
+
+.flappy-game__pause:hover,
+.flappy-game__pause:focus-visible {
+  outline: none;
+
+  border-color: var(--color-aqua);
+
+  background: rgba(49, 196, 190, 0.16);
+}
+
+.flappy-game__pause:active {
+  transform: scale(0.94);
+}
+
+.flappy-game__pause:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+}
+
+/* 10b. BACK LINK */
+
+.flappy-game__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.3rem;
+
+  min-height: 42px;
+
+  padding: 0.65rem 1rem;
+
+  border: 1px solid rgba(168, 190, 201, 0.35);
+  border-radius: 0.8rem;
+
+  background: rgba(17, 33, 41, 0.8);
+
+  color: var(--color-light-blue);
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+
+  pointer-events: auto;
+
+  transition:
+    border-color var(--transition),
+    color var(--transition),
+    background var(--transition),
+    transform var(--transition);
+}
+
+.flappy-game__back:hover {
+  border-color: var(--color-aqua);
+
+  background: rgba(49, 196, 190, 0.1);
+
+  color: var(--color-aqua);
+}
+
+.flappy-game__back:active {
+  transform: scale(0.96);
+}
+
+.flappy-game__back:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+/* 10c. SOUND TOGGLE (created by ../sounds.js) */
+
+.sound-toggle {
+  position: fixed;
+
+  top: max(0.6rem, env(safe-area-inset-top));
+  right: max(0.6rem, env(safe-area-inset-right));
+
+  z-index: 20;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.6rem;
+  height: 2.6rem;
+
+  padding: 0;
+
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+
+  background: rgba(17, 33, 41, 0.78);
+
+  color: var(--color-aqua);
+
+  font-size: 1.2rem;
+  line-height: 1;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  outline: none;
+
+  border-color: var(--color-aqua);
+
+  background: rgba(49, 196, 190, 0.16);
+}
+
+.sound-toggle--muted {
+  opacity: 0.6;
+}
+
+/* 10d. PAUSE OVERLAY */
+
+.flappy-game__pause-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+
+  display: grid;
+  place-items: center;
+
+  padding: clamp(0.9rem, 3vh, 1.6rem);
+
+  overflow: auto;
+
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(17, 33, 41, 0.86),
+    rgba(17, 33, 41, 0.76) 58%,
+    rgba(17, 33, 41, 0.62)
+  );
+
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  overscroll-behavior: contain;
+}
+
+.flappy-game__pause-overlay[hidden] {
+  display: none !important;
+}
+
+.flappy-game__pause-panel {
+  width: min(88vw, 21rem);
+
+  padding: clamp(1.2rem, 3.6vh, 1.8rem) clamp(1.05rem, 3.4vw, 1.6rem);
+
+  border: 1px solid rgba(49, 196, 190, 0.55);
+  border-radius: 1.35rem;
+
+  background-color: #192a32;
+  background-image: linear-gradient(
+    155deg,
+    rgba(35, 61, 74, 0.82),
+    rgba(17, 33, 41, 0.94)
+  );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(17, 33, 41, 0.55),
+    0 0 2.4rem rgba(49, 196, 190, 0.14),
+    0 1.6rem 3.4rem rgba(0, 0, 0, 0.5);
+
+  text-align: center;
+
+  animation: flappy-panel-in 0.32s cubic-bezier(0.22, 0.85, 0.3, 1.05) both;
+}
+
+.flappy-game__pause-eyebrow {
+  color: var(--color-aqua);
+
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.3;
+}
+
+.flappy-game__pause-title {
+  margin-top: 0.5rem;
+
+  color: var(--color-white);
+
+  font-size: clamp(1.35rem, 5vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.flappy-game__pause-text {
+  margin-top: 0.55rem;
+
+  color: var(--color-light-blue);
+
+  font-size: clamp(0.72rem, 2.4vw, 0.84rem);
+  line-height: 1.55;
+}
+
+.flappy-game__pause-score {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 0.4rem;
+
+  margin-top: 0.9rem;
+  padding: 0.35rem 0.8rem;
+
+  border: 1px solid rgba(49, 196, 190, 0.24);
+  border-radius: 999px;
+
+  background: rgba(49, 196, 190, 0.07);
+}
+
+.flappy-game__pause-score-label {
+  color: var(--color-light-blue);
+
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.flappy-game__pause-score-value {
+  color: var(--color-aqua);
+
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.flappy-game__pause-resume,
+.flappy-game__pause-restart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 2.75rem;
+
+  margin-top: 1rem;
+  padding: 0.7rem 1.1rem;
+
+  border: 1px solid var(--color-aqua);
+  border-radius: 0.85rem;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.flappy-game__pause-resume {
+  background: var(--color-aqua);
+
+  color: var(--color-darker-blue);
+
+  box-shadow: 0 0.55rem 1.4rem rgba(49, 196, 190, 0.2);
+}
+
+.flappy-game__pause-resume:hover {
+  background: transparent;
+
+  color: var(--color-aqua);
+
+  box-shadow: 0 0 1.5rem rgba(49, 196, 190, 0.22);
+}
+
+.flappy-game__pause-restart {
+  min-height: 2.6rem;
+  margin-top: 0.55rem;
+
+  border-color: rgba(168, 190, 201, 0.35);
+
+  background: rgba(17, 33, 41, 0.55);
+
+  color: var(--color-light-blue);
+}
+
+.flappy-game__pause-restart:hover {
+  border-color: var(--color-aqua);
+
+  background: rgba(49, 196, 190, 0.12);
+
+  color: var(--color-aqua);
+}
+
+.flappy-game__pause-resume:active,
+.flappy-game__pause-restart:active {
+  transform: scale(0.97);
+}
+
+.flappy-game__pause-resume:focus-visible,
+.flappy-game__pause-restart:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+.flappy-game__pause-hint {
+  margin-top: 0.75rem;
+
+  color: rgba(168, 190, 201, 0.78);
+
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+@keyframes flappy-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 11. GAME HINT */
+
+.flappy-game__hint {
+  display: block;
+  flex: 0 0 auto;
+
+  padding: 0.42rem 1rem 0.5rem;
+
+  color: var(--color-light-blue);
+
+  font-size: clamp(0.68rem, 1.4vw, 0.78rem);
+  line-height: 1.4;
+  text-align: center;
+
+  opacity: 0.9;
+}
+
+/* 12. RESPONSIVE DESIGN */
+
+/* Tablets */
+
+@media (max-width: 768px) {
+  .flappy-game__header {
+    padding: max(0.65rem, env(safe-area-inset-top)) 0.85rem 0.4rem;
+  }
+
+  .flappy-game__title {
+    font-size: clamp(1.15rem, 5vw, 1.5rem);
+  }
+
+  .flappy-game__subtitle {
+    max-width: 26rem;
+    font-size: 0.7rem;
+  }
+
+  .flappy-game__topbar {
+    gap: 0.35rem 0.5rem;
+
+    padding: max(0.4rem, env(safe-area-inset-top)) 0.75rem 0.4rem;
+  }
+
+  .flappy-game__topbar .sound-toggle {
+    width: 2.2rem;
+    height: 2.2rem;
+
+    font-size: 0.95rem;
+  }
+
+  .flappy-game__start,
+  .flappy-game__back {
+    min-height: 40px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .flappy-game__pause {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .flappy-game__pause svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .flappy-game__score {
+    min-width: 110px;
+    padding: 0.32rem 0.8rem;
+  }
+
+  .flappy-game__hint {
+    padding: 0.35rem 0.85rem 0.42rem;
+    font-size: 0.7rem;
+  }
+
+  .flappy-game__footer {
+    gap: 0.4rem;
+    padding: 0.38rem 0.85rem max(0.38rem, env(safe-area-inset-bottom));
+    font-size: 0.64rem;
+  }
+
+  .sound-toggle {
+    top: max(0.5rem, env(safe-area-inset-top));
+    right: max(0.5rem, env(safe-area-inset-right));
+
+    width: 2.4rem;
+    height: 2.4rem;
+
+    font-size: 1.05rem;
+  }
+}
+
+/* Mobile phones */
+
+@media (max-width: 480px) {
+  .flappy-game__header {
+    gap: 0.12rem;
+    padding: max(0.5rem, env(safe-area-inset-top)) 0.7rem 0.32rem;
+  }
+
+  .flappy-game__eyebrow {
+    font-size: 0.56rem;
+  }
+
+  .flappy-game__title {
+    font-size: 1.1rem;
+  }
+
+  .flappy-game__subtitle {
+    font-size: 0.64rem;
+  }
+
+  .flappy-game__topbar {
+    gap: 0.3rem 0.4rem;
+
+    padding: max(0.3rem, env(safe-area-inset-top)) 0.6rem 0.3rem;
+  }
+
+  .flappy-game__topbar .sound-toggle {
+    width: 2rem;
+    height: 2rem;
+
+    font-size: 0.9rem;
+  }
+
+  .flappy-game__score,
+  .flappy-game__start,
+  .flappy-game__back {
+    border-radius: 0.65rem;
+  }
+
+  .flappy-game__start,
+  .flappy-game__back {
+    min-height: 36px;
+    padding: 0.45rem 0.7rem;
+
+    font-size: 0.75rem;
+  }
+
+  .flappy-game__pause {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .flappy-game__pause svg {
+    width: 0.82rem;
+    height: 0.82rem;
+  }
+
+  .flappy-game__pause-panel {
+    width: min(92vw, 20rem);
+    padding: 1.15rem 1.05rem;
+  }
+
+  .flappy-game__score {
+    min-width: 96px;
+    padding: 0.26rem 0.6rem;
+  }
+
+  .flappy-game__score-label {
+    font-size: 0.56rem;
+  }
+
+  .flappy-game__score-value {
+    font-size: 0.82rem;
+  }
+
+  .flappy-game__score-star {
+    font-size: 0.54rem;
+  }
+
+  .flappy-game__hint {
+    padding: 0.3rem 0.7rem 0.38rem;
+    font-size: 0.65rem;
+  }
+
+  .flappy-game__footer {
+    gap: 0.32rem;
+    padding: 0.32rem 0.7rem max(0.32rem, env(safe-area-inset-bottom));
+    font-size: 0.6rem;
+  }
+
+  .flappy-game::before {
+    width: 20rem;
+    height: 20rem;
+    filter: blur(75px);
+  }
+
+  .flappy-game::after {
+    width: 16rem;
+    height: 16rem;
+    filter: blur(75px);
+  }
+}
+
+/* Landscape mobile */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .flappy-game__header {
+    min-height: 2.5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    gap: 0.15rem 0.6rem;
+
+    padding: max(0.3rem, env(safe-area-inset-top)) 0.75rem 0.22rem;
+  }
+
+  .flappy-game__eyebrow {
+    font-size: 0.52rem;
+  }
+
+  .flappy-game__title {
+    font-size: 0.95rem;
+  }
+
+  .flappy-game__subtitle {
+    display: none;
+  }
+
+  .flappy-game__topbar {
+    min-height: 2.5rem;
+    flex-wrap: nowrap;
+    padding: max(0.15rem, env(safe-area-inset-top)) 0.6rem 0.15rem;
+  }
+
+  .flappy-game__score {
+    min-height: 1.9rem;
+    gap: 0;
+    padding: 0.1rem 0.5rem;
+  }
+
+  .flappy-game__score-line {
+    line-height: 1;
+  }
+
+  .flappy-game__topbar {
+    gap: 0.25rem 0.5rem;
+
+    padding: max(0.2rem, env(safe-area-inset-top)) 0.6rem 0.2rem;
+  }
+
+  .flappy-game__topbar .sound-toggle {
+    width: 1.9rem;
+    height: 1.9rem;
+
+    font-size: 0.85rem;
+  }
+
+  .flappy-game__start,
+  .flappy-game__back {
+    min-height: 32px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .flappy-game__pause {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .flappy-game__pause svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .flappy-game__pause-panel {
+    width: min(78vw, 23rem);
+    max-height: calc(100dvh - 1.2rem);
+    padding: 0.9rem 1rem;
+    overflow: auto;
+  }
+
+  .flappy-game__pause-title {
+    margin-top: 0.2rem;
+    font-size: 1.2rem;
+  }
+
+  .flappy-game__pause-text,
+  .flappy-game__pause-hint {
+    margin-top: 0.25rem;
+  }
+
+  .flappy-game__pause-score,
+  .flappy-game__pause-resume {
+    margin-top: 0.5rem;
+  }
+
+  .flappy-game__pause-resume,
+  .flappy-game__pause-restart {
+    min-height: 2.35rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .flappy-game__score {
+    min-width: 96px;
+    padding: 0.18rem 0.6rem;
+  }
+
+  .flappy-game__score-label {
+    font-size: 0.52rem;
+  }
+
+  .flappy-game__score-value {
+    font-size: 0.76rem;
+  }
+
+  .flappy-game__hint {
+    padding: 0.2rem 0.75rem 0.25rem;
+    font-size: 0.6rem;
+  }
+
+  .flappy-game__footer {
+    padding: 0.22rem 0.75rem max(0.22rem, env(safe-area-inset-bottom));
+    font-size: 0.58rem;
+  }
+
+  .sound-toggle {
+    top: max(0.3rem, env(safe-area-inset-top));
+    right: max(0.3rem, env(safe-area-inset-right));
+
+    width: 2.1rem;
+    height: 2.1rem;
+
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 410px) and (orientation: landscape) and (max-height: 500px) {
+  .flappy-game__header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 5;
+    width: max-content;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    flex-wrap: nowrap;
+    gap: 0.15rem 0.4rem;
+    padding: 0;
+    transform: translateX(-50%);
+    background: transparent;
+    border-bottom: 0;
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 410px) and (max-width: 460px) and (orientation: landscape) and (max-height: 500px) {
+  .flappy-game__eyebrow {
+    display: none;
+  }
+}
+
+/* 13. LARGE SCREENS: LIFT THE HEADER INTO THE MIDDLE OF THE TOP BAR */
+
+@media (min-width: 769px) and (min-height: 501px) {
+  .flappy-game__topbar {
+    min-height: 5.2rem;
+  }
+
+  .flappy-game__header {
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    z-index: 5;
+
+    display: flex;
+    justify-content: center;
+
+    height: 5.2rem;
+
+    padding: 0 1rem;
+
+    transform: translateX(-50%);
+    background: transparent;
+    border-bottom: 0;
+
+    pointer-events: none;
+  }
+
+  .flappy-game__title {
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  }
+
+  .flappy-game__subtitle {
+    max-width: 24rem;
+  }
+}
+
+/* 14. ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,0 +1,1025 @@
+/* ==========================================
+   TRAFFIC RUSH - IS GAMES
+   Full-screen responsive arcade game
+========================================== */
+
+:root {
+  --color-blue: #233d4a;
+  --color-light-blue: #a8bec9;
+  --color-dark-blue: #192a32;
+  --color-darker-blue: #112129;
+  --color-orange: #f2b237;
+  --color-aqua: #31c4be;
+
+  --color-white: #f5f5f5;
+  --border-radius: 1rem;
+  --transition: 220ms ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  background: var(--color-darker-blue);
+  color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Main shell ---------- */
+
+.traffic-game {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 18%, rgba(49, 196, 190, 0.12), transparent 42%),
+    linear-gradient(145deg, var(--color-darker-blue), var(--color-dark-blue), var(--color-blue));
+}
+
+.traffic-game::before,
+.traffic-game::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+}
+
+.traffic-game::before {
+  width: 35rem;
+  height: 35rem;
+  top: -15rem;
+  right: -12rem;
+  background: rgba(49, 196, 190, 0.1);
+}
+
+.traffic-game::after {
+  width: 28rem;
+  height: 28rem;
+  bottom: -15rem;
+  left: -10rem;
+  background: rgba(242, 178, 55, 0.07);
+}
+
+/* ---------- Header / footer ---------- */
+
+.traffic-game__header {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.5rem;
+  border-bottom: 1px solid rgba(49, 196, 190, 0.16);
+  background: rgba(17, 33, 41, 0.88);
+  text-align: center;
+}
+
+.traffic-game__eyebrow {
+  color: var(--color-aqua);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+}
+
+.traffic-game__title {
+  color: var(--color-white);
+  font-size: clamp(1.2rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  line-height: 1.15;
+}
+
+.traffic-game__title span {
+  color: var(--color-aqua);
+}
+
+.traffic-game__subtitle {
+  max-width: 36rem;
+  color: var(--color-light-blue);
+  font-size: clamp(0.68rem, 1.5vw, 0.82rem);
+  line-height: 1.45;
+}
+
+.traffic-game__footer {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.4rem 1rem max(0.4rem, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(49, 196, 190, 0.16);
+  background: rgba(17, 33, 41, 0.6);
+  color: var(--color-light-blue);
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.traffic-game__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-aqua);
+  opacity: 0.7;
+}
+
+/* ---------- Game area ---------- */
+
+.traffic-game__content {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+.traffic-game__board {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-darker-blue);
+  touch-action: none;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* ---------- HUD ---------- */
+
+.traffic-game__hud {
+  position: absolute;
+  top: clamp(0.5rem, 1.4vh, 0.9rem);
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.35rem, 1vw, 0.55rem);
+  width: max-content;
+  max-width: calc(100% - 1.6rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.traffic-game__hud-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-width: 74px;
+  padding: 0.32rem 0.72rem;
+  border: 1px solid rgba(49, 196, 190, 0.32);
+  border-radius: 0.8rem;
+  background: rgba(17, 33, 41, 0.78);
+  box-shadow: 0 0.4rem 1.4rem rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.traffic-game__hud-card--best {
+  border-color: rgba(242, 178, 55, 0.34);
+}
+
+.traffic-game__hud-label {
+  color: var(--color-light-blue);
+  font-size: 0.62rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.traffic-game__hud-star {
+  color: var(--color-orange);
+  font-size: 0.58rem;
+}
+
+.traffic-game__hud-value {
+  color: var(--color-white);
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.traffic-game__hud-value--best {
+  color: var(--color-orange);
+}
+
+/* ---------- Touch controls ---------- */
+
+.traffic-game__touch {
+  position: absolute;
+  right: 0;
+  bottom: max(0.85rem, env(safe-area-inset-bottom));
+  left: 0;
+  z-index: 6;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.85rem;
+  pointer-events: none;
+}
+
+.traffic-game__touch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgba(49, 196, 190, 0.42);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.66);
+  color: var(--color-aqua);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.25);
+  transition: transform var(--transition), background-color var(--transition), border-color var(--transition);
+  touch-action: manipulation;
+}
+
+.traffic-game__touch-btn:active {
+  transform: scale(0.9);
+  border-color: var(--color-aqua);
+  background: rgba(49, 196, 190, 0.2);
+}
+
+.traffic-game__touch-btn:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+}
+
+/* ---------- Overlays ---------- */
+
+.traffic-game__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 2.5vh, 1.5rem);
+  overflow: auto;
+  background: radial-gradient(circle at 50% 50%, rgba(17, 33, 41, 0.42), rgba(17, 33, 41, 0.2) 55%, transparent 78%);
+  pointer-events: none;
+  overscroll-behavior: contain;
+}
+
+.traffic-game__overlay--start {
+  background: radial-gradient(circle at 50% 46%, rgba(17, 33, 41, 0.28), transparent 66%);
+}
+
+/* Pause dims the frozen frame and captures taps so no gameplay input leaks
+   through to the lane controls underneath. */
+.traffic-game__overlay--pause {
+  z-index: 12;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(17, 33, 41, 0.84),
+    rgba(17, 33, 41, 0.74) 58%,
+    rgba(17, 33, 41, 0.58)
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+.traffic-game__overlay[hidden] {
+  display: none !important;
+}
+
+.traffic-game__panel {
+  width: min(88vw, 22rem);
+  padding: clamp(1.25rem, 3.6vh, 1.9rem) clamp(1.1rem, 3.4vw, 1.7rem);
+  border: 1px solid rgba(49, 196, 190, 0.48);
+  border-radius: calc(var(--border-radius) * 1.35);
+  background-color: #192a32;
+  background-image: linear-gradient(155deg, rgba(35, 61, 74, 0.82), rgba(17, 33, 41, 0.94));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(17, 33, 41, 0.55),
+    0 0 2.6rem rgba(49, 196, 190, 0.16),
+    0 1.6rem 3.4rem rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  text-align: center;
+  pointer-events: auto;
+  animation: panel-in 0.32s cubic-bezier(0.22, 0.85, 0.3, 1.05) both;
+}
+
+.traffic-game__panel--over {
+  border-color: rgba(242, 178, 55, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(17, 33, 41, 0.55),
+    0 0 2.6rem rgba(242, 178, 55, 0.11),
+    0 1.6rem 3.4rem rgba(0, 0, 0, 0.5);
+}
+
+.traffic-game__panel--pause {
+  border-color: rgba(49, 196, 190, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(17, 33, 41, 0.55),
+    0 0 2.4rem rgba(49, 196, 190, 0.14),
+    0 1.6rem 3.4rem rgba(0, 0, 0, 0.5);
+}
+
+.traffic-game__panel-eyebrow {
+  color: var(--color-aqua);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.3;
+}
+
+.traffic-game__panel--over .traffic-game__panel-eyebrow {
+  color: var(--color-orange);
+}
+
+.traffic-game__panel-title {
+  margin-top: 0.5rem;
+  color: var(--color-white);
+  font-size: clamp(1.55rem, 5.4vw, 1.95rem);
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  line-height: 1.1;
+}
+
+.traffic-game__panel-title span {
+  color: var(--color-aqua);
+}
+
+.traffic-game__panel-title--over {
+  color: var(--color-white);
+  font-size: clamp(1.35rem, 5vw, 1.7rem);
+  letter-spacing: 0;
+}
+
+.traffic-game__panel-text {
+  margin-top: 0.55rem;
+  color: var(--color-light-blue);
+  font-size: clamp(0.72rem, 2.4vw, 0.84rem);
+  line-height: 1.55;
+}
+
+.traffic-game__panel-best {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid rgba(242, 178, 55, 0.24);
+  border-radius: 999px;
+  background: rgba(242, 178, 55, 0.07);
+  color: var(--color-light-blue);
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.traffic-game__panel-best span:first-child {
+  color: var(--color-orange);
+}
+
+.traffic-game__panel-best strong {
+  color: var(--color-orange);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.traffic-game__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.9rem;
+  margin-top: 1.05rem;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--color-aqua);
+  border-radius: 0.85rem;
+  background: var(--color-aqua);
+  color: var(--color-darker-blue);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 0.55rem 1.4rem rgba(49, 196, 190, 0.2);
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.traffic-game__cta:hover {
+  background: transparent;
+  color: var(--color-aqua);
+  box-shadow: 0 0 1.5rem rgba(49, 196, 190, 0.22);
+}
+
+.traffic-game__cta:active {
+  transform: scale(0.97);
+}
+
+.traffic-game__cta:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+/* Secondary pause action: same shape, quieter treatment. */
+.traffic-game__cta--ghost {
+  min-height: 2.6rem;
+  margin-top: 0.55rem;
+  border-color: rgba(168, 190, 201, 0.35);
+  background: rgba(17, 33, 41, 0.55);
+  color: var(--color-light-blue);
+  box-shadow: none;
+}
+
+.traffic-game__cta--ghost:hover {
+  border-color: var(--color-aqua);
+  background: rgba(49, 196, 190, 0.12);
+  color: var(--color-aqua);
+  box-shadow: none;
+}
+
+.traffic-game__panel-hint {
+  margin-top: 0.75rem;
+  color: rgba(168, 190, 201, 0.78);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+.traffic-game__panel-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.5rem;
+  color: rgba(168, 190, 201, 0.82);
+  font-size: 0.68rem;
+  font-weight: 600;
+  transition: color var(--transition);
+}
+
+.traffic-game__panel-link:hover {
+  color: var(--color-aqua);
+}
+
+.traffic-game__panel-link:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+}
+
+/* ---------- Result cards ---------- */
+
+.traffic-game__results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  margin-top: 0.95rem;
+}
+
+.traffic-game__result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid rgba(49, 196, 190, 0.22);
+  border-radius: 0.8rem;
+  background: rgba(17, 33, 41, 0.52);
+}
+
+.traffic-game__result--best {
+  border-color: rgba(242, 178, 55, 0.26);
+}
+
+.traffic-game__result-label {
+  color: var(--color-light-blue);
+  font-size: 0.6rem;
+  font-weight: 600;
+}
+
+.traffic-game__result-value {
+  color: var(--color-aqua);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.traffic-game__result--best .traffic-game__result-value {
+  color: var(--color-orange);
+}
+
+/* ---------- Bottom hint ---------- */
+
+.traffic-game__hint {
+  display: block;
+  flex: 0 0 auto;
+  padding: 0.4rem 1rem 0.45rem;
+  color: var(--color-light-blue);
+  font-size: clamp(0.66rem, 1.4vw, 0.76rem);
+  line-height: 1.4;
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* ---------- Back to games + pause ---------- */
+
+.traffic-game__corner {
+  position: fixed;
+  top: max(0.6rem, env(safe-area-inset-top));
+  left: max(0.6rem, env(safe-area-inset-left));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  direction: ltr;
+}
+
+.traffic-game__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.6rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.78);
+  color: var(--color-aqua);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.traffic-game__pause {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.78);
+  color: var(--color-aqua);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  touch-action: manipulation;
+}
+
+.traffic-game__pause[hidden] {
+  display: none !important;
+}
+
+.traffic-game__pause svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: currentColor;
+}
+
+.traffic-game__pause:hover,
+.traffic-game__pause:focus-visible {
+  outline: none;
+  border-color: var(--color-aqua);
+  background: rgba(49, 196, 190, 0.16);
+}
+
+.traffic-game__pause:active {
+  transform: scale(0.94);
+}
+
+.traffic-game__pause:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+}
+
+.traffic-game__back-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.traffic-game__back:hover,
+.traffic-game__back:focus-visible {
+  outline: none;
+  border-color: var(--color-aqua);
+  background: rgba(49, 196, 190, 0.16);
+}
+
+.traffic-game__back:active {
+  transform: scale(0.96);
+}
+
+.traffic-game__back:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+}
+
+/* ---------- Sound toggle (created by ../sounds.js) ---------- */
+
+.sound-toggle {
+  position: fixed;
+  top: max(0.6rem, env(safe-area-inset-top));
+  right: max(0.6rem, env(safe-area-inset-right));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid rgba(49, 196, 190, 0.45);
+  border-radius: 999px;
+  background: rgba(17, 33, 41, 0.78);
+  color: var(--color-aqua);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  outline: none;
+  border-color: var(--color-aqua);
+  background: rgba(49, 196, 190, 0.16);
+}
+
+.sound-toggle--muted {
+  opacity: 0.6;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (hover: none) and (pointer: coarse), (max-width: 720px) {
+  .traffic-game__touch {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .traffic-game__header {
+    padding: max(0.65rem, env(safe-area-inset-top)) 0.85rem 0.4rem;
+  }
+
+  .traffic-game__title {
+    font-size: clamp(1.15rem, 5vw, 1.5rem);
+  }
+
+  .traffic-game__subtitle {
+    max-width: 26rem;
+    font-size: 0.7rem;
+  }
+
+  .traffic-game__hud-card {
+    min-width: 68px;
+    padding: 0.28rem 0.62rem;
+  }
+
+  .traffic-game__hint {
+    padding: 0.32rem 0.85rem 0.38rem;
+    font-size: 0.68rem;
+  }
+
+  .traffic-game__footer {
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem max(0.35rem, env(safe-area-inset-bottom));
+    font-size: 0.63rem;
+  }
+
+  .sound-toggle {
+    top: max(0.5rem, env(safe-area-inset-top));
+    right: max(0.5rem, env(safe-area-inset-right));
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.05rem;
+  }
+
+  .traffic-game__corner {
+    top: max(0.5rem, env(safe-area-inset-top));
+    left: max(0.5rem, env(safe-area-inset-left));
+    gap: 0.35rem;
+  }
+
+  .traffic-game__back {
+    min-height: 2.4rem;
+    padding: 0 0.72rem;
+    font-size: 0.7rem;
+  }
+
+  .traffic-game__pause {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .traffic-game__header {
+    gap: 0.1rem;
+    padding: max(0.5rem, env(safe-area-inset-top)) 0.7rem 0.32rem;
+  }
+
+  .traffic-game__eyebrow {
+    font-size: 0.54rem;
+  }
+
+  .traffic-game__title {
+    font-size: 1.08rem;
+  }
+
+  .traffic-game__subtitle {
+    font-size: 0.64rem;
+  }
+
+  .traffic-game__hud {
+    top: 0.45rem;
+  }
+
+  .traffic-game__hud-card {
+    min-width: 62px;
+    gap: 0.26rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.65rem;
+  }
+
+  .traffic-game__hud-label {
+    font-size: 0.55rem;
+  }
+
+  .traffic-game__hud-value {
+    font-size: 0.82rem;
+  }
+
+  .traffic-game__hud-star {
+    font-size: 0.52rem;
+  }
+
+  .traffic-game__hint {
+    padding: 0.28rem 0.7rem 0.32rem;
+    font-size: 0.62rem;
+  }
+
+  .traffic-game__footer {
+    gap: 0.32rem;
+    padding: 0.3rem 0.7rem max(0.3rem, env(safe-area-inset-bottom));
+    font-size: 0.58rem;
+  }
+
+  .traffic-game__panel {
+    width: min(92vw, 21rem);
+    padding: 1.15rem 1.05rem;
+  }
+
+  .traffic-game__cta {
+    min-height: 2.75rem;
+    margin-top: 0.9rem;
+  }
+
+  .traffic-game__touch-btn {
+    width: 2.8rem;
+    height: 2.8rem;
+    font-size: 1.4rem;
+  }
+
+  .traffic-game__back {
+    min-height: 2.2rem;
+    padding: 0 0.62rem;
+    font-size: 0.64rem;
+  }
+
+  .traffic-game__pause {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .traffic-game__pause svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .traffic-game__back-icon {
+    font-size: 0.9rem;
+  }
+
+  .traffic-game::before {
+    width: 20rem;
+    height: 20rem;
+    filter: blur(75px);
+  }
+
+  .traffic-game::after {
+    width: 16rem;
+    height: 16rem;
+    filter: blur(75px);
+  }
+}
+
+/* Short landscape phones */
+@media (orientation: landscape) and (max-height: 540px) {
+  .traffic-game__header {
+    min-height: 2.5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem 0.7rem;
+    padding: max(0.3rem, env(safe-area-inset-top)) 0.75rem 0.22rem;
+  }
+
+  .traffic-game__eyebrow {
+    font-size: 0.52rem;
+  }
+
+  .traffic-game__title {
+    font-size: 0.95rem;
+  }
+
+  .traffic-game__subtitle {
+    display: none;
+  }
+
+  .traffic-game__hint {
+    display: none;
+  }
+
+  .traffic-game__footer {
+    padding: 0.22rem 0.75rem max(0.22rem, env(safe-area-inset-bottom));
+    font-size: 0.56rem;
+  }
+
+  .traffic-game__hud {
+    top: 0.35rem;
+  }
+
+  .traffic-game__hud-card {
+    min-width: 62px;
+    padding: 0.2rem 0.55rem;
+  }
+
+  .traffic-game__hud-label {
+    font-size: 0.55rem;
+  }
+
+  .traffic-game__hud-value {
+    font-size: 0.82rem;
+  }
+
+  .traffic-game__panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    width: min(78vw, 24rem);
+    max-height: calc(100dvh - 1.2rem);
+    padding: 0.9rem 1rem;
+    overflow: auto;
+  }
+
+  .traffic-game__panel-title {
+    margin-top: 0.2rem;
+    font-size: 1.2rem;
+  }
+
+  .traffic-game__panel-text,
+  .traffic-game__panel-hint {
+    margin-top: 0.25rem;
+  }
+
+  .traffic-game__panel-best,
+  .traffic-game__cta,
+  .traffic-game__results {
+    margin-top: 0.5rem;
+  }
+
+  .traffic-game__cta {
+    min-height: 2.35rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .traffic-game__panel-link {
+    margin-top: 0.35rem;
+  }
+
+  .traffic-game__touch {
+    bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .traffic-game__touch-btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.2rem;
+  }
+
+  .sound-toggle {
+    top: max(0.3rem, env(safe-area-inset-top));
+    right: max(0.3rem, env(safe-area-inset-right));
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.95rem;
+  }
+
+  .traffic-game__corner {
+    top: max(0.3rem, env(safe-area-inset-top));
+    left: max(0.3rem, env(safe-area-inset-left));
+    gap: 0.3rem;
+  }
+
+  .traffic-game__back {
+    min-height: 2.1rem;
+    padding: 0 0.62rem;
+    font-size: 0.64rem;
+  }
+
+  .traffic-game__pause {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .traffic-game__pause svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+/* ---------- Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

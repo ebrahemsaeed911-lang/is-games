@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Traffic Rush layout measurements</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+        color: #0f0;
+        font: 11px/1.3 Consolas, monospace;
+      }
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 0;
+      }
+
+      pre {
+        position: relative;
+        z-index: 99;
+        margin: 0;
+        padding: 8px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <pre id="out">measuring…</pre>
+    <script>
+      const SIZES = [
+        [320, 568],
+        [360, 640],
+        [390, 844],
+        [430, 932],
+        [568, 320],
+        [667, 375],
+        [740, 360],
+        [844, 390],
+        [932, 430],
+        [768, 1024],
+        [1024, 768],
+        [1366, 768],
+      ];
+
+      const round = (value) => Math.round(value * 10) / 10;
+
+      function rectOf(el) {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return {
+          x: round(r.x),
+          y: round(r.y),
+          w: round(r.width),
+          h: round(r.height),
+          right: round(r.right),
+          bottom: round(r.bottom),
+        };
+      }
+
+      function measure(frame, width, height) {
+        const win = frame.contentWindow;
+        const doc = win.document;
+        const q = (selector) => doc.querySelector(selector);
+        const style = (el) => (el ? win.getComputedStyle(el) : null);
+
+        const header = q(".traffic-game__header");
+        const board = q(".traffic-game__board");
+        const content = q(".traffic-game__content");
+        const canvas = q("#gameCanvas");
+        const footer = q(".traffic-game__footer");
+        const hint = q(".traffic-game__hint");
+        const hud = q(".traffic-game__hud");
+        const corner = q(".traffic-game__corner");
+        const sound = q(".sound-toggle");
+        const pauseBtn = q("#pauseBtn");
+        const startOverlay = q("#startOverlay");
+        const startPanel = q("#startOverlay .traffic-game__panel");
+        const pauseOverlay = q("#pauseOverlay");
+
+        let pausePanel = null;
+        let pauseOverflow = null;
+
+        if (pauseOverlay) {
+          pauseOverlay.hidden = false;
+          pausePanel = rectOf(q("#pauseOverlay .traffic-game__panel"));
+          const panel = q("#pauseOverlay .traffic-game__panel");
+          pauseOverflow = {
+            sh: panel.scrollHeight,
+            ch: panel.clientHeight,
+            sw: panel.scrollWidth,
+            cw: panel.clientWidth,
+          };
+          pauseOverlay.hidden = true;
+        }
+
+        const headerRect = rectOf(header);
+        const boardRect = rectOf(board);
+        const startRect = rectOf(startPanel);
+
+        return {
+          size: [width, height],
+          win: [win.innerWidth, win.innerHeight],
+          doc: {
+            sw: doc.documentElement.scrollWidth,
+            cw: doc.documentElement.clientWidth,
+            sh: doc.documentElement.scrollHeight,
+            ch: doc.documentElement.clientHeight,
+          },
+          header: headerRect,
+          headerStyle: {
+            display: style(header).display,
+            flexDirection: style(header).flexDirection,
+            alignItems: style(header).alignItems,
+            padTop: style(header).paddingTop,
+            padBottom: style(header).paddingBottom,
+            bg: style(header).backgroundColor,
+            overflow: style(header).overflow,
+          },
+          board: boardRect,
+          content: rectOf(content),
+          canvas: rectOf(canvas),
+          footer: rectOf(footer),
+          hint: hint ? { rect: rectOf(hint), display: style(hint).display } : null,
+          hud: rectOf(hud),
+          corner: rectOf(corner),
+          sound: rectOf(sound),
+          pauseBtn: { rect: rectOf(pauseBtn), hidden: pauseBtn.hidden },
+          startOverlay: rectOf(startOverlay),
+          startPanel: startRect,
+          startOverflow: {
+            sh: startPanel.scrollHeight,
+            ch: startPanel.clientHeight,
+            sw: startPanel.scrollWidth,
+            cw: startPanel.clientWidth,
+          },
+          pausePanel,
+          pauseOverflow,
+          checks: {
+            docOverflowX: doc.documentElement.scrollWidth > doc.documentElement.clientWidth,
+            docOverflowY: doc.documentElement.scrollHeight > doc.documentElement.clientHeight,
+            headerBoardGap: round(boardRect.y - headerRect.bottom),
+            headerVisible: headerRect.y >= 0 && headerRect.bottom <= win.innerHeight,
+            headerHeight: headerRect.h,
+            canvasMatchesBoard:
+              rectOf(canvas).w === boardRect.w && rectOf(canvas).h === boardRect.h,
+            boardInsideViewport: boardRect.y >= 0 && boardRect.bottom <= win.innerHeight,
+            startPanelFits:
+              startRect.x >= 0 &&
+              startRect.y >= 0 &&
+              startRect.right <= win.innerWidth &&
+              startRect.bottom <= win.innerHeight,
+            pausePanelFits:
+              pausePanel !== null &&
+              pausePanel.x >= 0 &&
+              pausePanel.y >= 0 &&
+              pausePanel.right <= win.innerWidth &&
+              pausePanel.bottom <= win.innerHeight,
+            cornerOverlapsHeader:
+              corner && header
+                ? corner.getBoundingClientRect().bottom > headerRect.y &&
+                  corner.getBoundingClientRect().top < headerRect.bottom
+                : null,
+            hudOverlapsHeader:
+              hud && header
+                ? hud.getBoundingClientRect().top < headerRect.bottom
+                : null,
+          },
+        };
+      }
+
+      async function run() {
+        const results = [];
+
+        for (const [width, height] of SIZES) {
+          const frame = document.createElement("iframe");
+          frame.width = width;
+          frame.height = height;
+          frame.style.width = width + "px";
+          frame.style.height = height + "px";
+
+          const loaded = new Promise((resolve) => {
+            frame.addEventListener("load", resolve, { once: true });
+          });
+
+          frame.src = "./traffic-rush/index.html";
+          document.body.appendChild(frame);
+
+          await loaded;
+
+          // Let the game initialise, draw and settle its initial overlay.
+          await new Promise((resolve) => setTimeout(resolve, 400));
+
+          results.push(measure(frame, width, height));
+          frame.remove();
+        }
+
+        document.getElementById("out").textContent = JSON.stringify(results, null, 2);
+      }
+
+      run();
+    </script>
+  </body>
+</html>

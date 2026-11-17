@@ -121,6 +121,28 @@ const SOUNDS = {
 
   // Reset button: quick upward sweep.
   reset: () => tone({ from: 300, to: 620, type: "sine", duration: 0.14, level: 0.5 }),
+
+  // Flappy Bird: a quick wing flap.
+  flap: () => tone({ from: 520, to: 780, type: "triangle", duration: 0.07, level: 0.55 }),
+
+  // Flappy Bird: a point scored.
+  score: () => {
+    tone({ from: 880, type: "sine", duration: 0.09, level: 0.5 });
+    tone({ from: 1320, type: "sine", start: 0.07, duration: 0.12, level: 0.45 });
+  },
+
+  // Flappy Bird: crash into a pipe or the ground.
+  hit: () => {
+    tone({ from: 220, to: 70, type: "square", duration: 0.22, level: 0.4 });
+    tone({
+      from: 160,
+      to: 60,
+      type: "sawtooth",
+      start: 0.02,
+      duration: 0.28,
+      level: 0.3,
+    });
+  },
 };
 
 function playSound(name) {

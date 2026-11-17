@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Play Flappy Bird on IS Games. Test your skills and beat your high score!"
+    />
+
+    <meta name="theme-color" content="#192a32" />
+
+    <title>Flappy Bird | IS Games</title>
+
+    <link rel="stylesheet" href="style.css?v=2" />
+  </head>
+
+  <body>
+    <main class="flappy-game">
+      <!-- Top bar: score beside the sound button, game actions on the other side -->
+      <div class="flappy-game__topbar">
+        <div class="flappy-game__topbar-group flappy-game__topbar-group--score">
+          <div
+            class="flappy-game__score"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span class="flappy-game__score-line">
+              <span class="flappy-game__score-label">النقاط</span>
+              <span class="flappy-game__score-value" id="scoreDisplay">0</span>
+            </span>
+
+            <span
+              class="flappy-game__score-line flappy-game__score-line--best"
+              title="الرقم القياسي"
+            >
+              <span class="flappy-game__score-star" aria-hidden="true">★</span>
+              <span class="flappy-game__score-label">الأفضل</span>
+              <span
+                class="flappy-game__score-value flappy-game__score-value--best"
+                id="bestScoreDisplay"
+                >0</span
+              >
+            </span>
+          </div>
+        </div>
+
+        <div class="flappy-game__topbar-group flappy-game__topbar-group--actions">
+          <button
+            class="flappy-game__pause"
+            id="pauseBtn"
+            type="button"
+            aria-label="إيقاف مؤقت"
+            title="إيقاف مؤقت: اضغط الزر أو Esc"
+            hidden
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="7" y="5" width="3.6" height="14" rx="1.3"></rect>
+              <rect x="13.4" y="5" width="3.6" height="14" rx="1.3"></rect>
+            </svg>
+          </button>
+
+          <button class="flappy-game__start" id="startBtn" type="button">
+            ابدأ اللعبة
+          </button>
+
+          <a class="flappy-game__back" href="../index.html">
+            <span aria-hidden="true">←</span>
+            <span>Back</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Game Header -->
+      <header class="flappy-game__header">
+        <span class="flappy-game__eyebrow">IS GAMES</span>
+
+        <h1 class="flappy-game__title">Flappy <span>Bird</span></h1>
+
+        <p class="flappy-game__subtitle">
+          اختبر مهارتك وحاول تحطم رقمك القياسي!
+        </p>
+      </header>
+
+      <!-- Game Section -->
+      <section class="flappy-game__content" aria-label="منطقة اللعب">
+        <!-- Game Board -->
+        <div class="flappy-game__board">
+          <canvas
+            id="gameCanvas"
+            width="360"
+            height="540"
+            aria-label="لعبة Flappy Bird. اضغط للقفز وتجنب الأنابيب."
+          >
+            متصفحك لا يدعم تشغيل Canvas.
+          </canvas>
+        </div>
+
+        <!-- Instructions -->
+        <p class="flappy-game__hint" id="hint">
+          انقر أو Space للطيران · للإيقاف: زر الإيقاف أو Esc
+        </p>
+      </section>
+
+      <!-- Game Footer -->
+      <footer class="flappy-game__footer">
+        <span>IS Games</span>
+        <span class="flappy-game__dot"></span>
+        <span>Play. Challenge. Enjoy.</span>
+      </footer>
+
+      <!-- Pause overlay: covers the game so nothing behind it is clickable -->
+      <div
+        class="flappy-game__pause-overlay"
+        id="pauseOverlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pauseTitle"
+        hidden
+      >
+        <div class="flappy-game__pause-panel">
+          <p class="flappy-game__pause-eyebrow">PAUSED</p>
+          <h2 class="flappy-game__pause-title" id="pauseTitle">إيقاف مؤقت</h2>
+          <p class="flappy-game__pause-text">
+            اللعبة متوقفة. أكمل من حيث توقفت.
+          </p>
+
+          <div class="flappy-game__pause-score">
+            <span class="flappy-game__pause-score-label">النقاط</span>
+            <strong class="flappy-game__pause-score-value" id="pauseScore"
+              >0</strong
+            >
+          </div>
+
+          <button class="flappy-game__pause-resume" id="resumeBtn" type="button">
+            متابعة
+          </button>
+          <button
+            class="flappy-game__pause-restart"
+            id="pauseRestartBtn"
+            type="button"
+          >
+            إعادة اللعبة
+          </button>
+
+          <p class="flappy-game__pause-hint">
+            للاستئناف اضغط متابعة أو Esc.
+          </p>
+        </div>
+      </div>
+    </main>
+    <script src="../sounds.js?v=1"></script>
+    <script type="module" src="./js/main.js?v=2"></script>
+  </body>
+</html>

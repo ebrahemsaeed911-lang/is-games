@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="IS Games — pick a game and play with a friend." />
+    <meta
+      name="description"
+      content="IS Games — pick a game and play with a friend."
+    />
     <title>IS Games</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon.ico" sizes="any" />
@@ -14,7 +17,6 @@
   <body>
     <main class="hub">
       <header class="hub__header">
-        <p class="hub__eyebrow">Two players · One screen</p>
         <h1 class="hub__title">IS <span>Games</span></h1>
         <p class="hub__subtitle">Pick a board and challenge your friend.</p>
       </header>
@@ -65,12 +67,397 @@
 
           <span class="game-card__play">Play</span>
         </a>
+
+        <a class="game-card" href="./flappy-bird/flappy.html">
+          <div class="game-card__preview">
+            <svg
+              class="game-icon"
+              viewBox="0 0 200 200"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <defs>
+                <radialGradient id="hubFbGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#31c4be" stop-opacity="0.16" />
+                  <stop offset="1" stop-color="#31c4be" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="hubFbPipe" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#112129" />
+                  <stop offset="0.25" stop-color="#233d4a" />
+                  <stop offset="0.7" stop-color="#192a32" />
+                  <stop offset="1" stop-color="#112129" />
+                </linearGradient>
+                <radialGradient id="hubFbBody" cx="0.35" cy="0.28" r="0.95">
+                  <stop offset="0" stop-color="#5ddbd4" />
+                  <stop offset="0.65" stop-color="#31c4be" />
+                  <stop offset="1" stop-color="#1f8b87" />
+                </radialGradient>
+              </defs>
+
+              <circle cx="100" cy="100" r="86" fill="url(#hubFbGlow)" />
+
+              <g stroke="#31c4be" stroke-width="2">
+                <rect
+                  x="118"
+                  y="-4"
+                  width="40"
+                  height="64"
+                  fill="url(#hubFbPipe)"
+                  stroke-opacity="0.5"
+                />
+                <rect
+                  x="110"
+                  y="48"
+                  width="56"
+                  height="16"
+                  rx="3"
+                  fill="url(#hubFbPipe)"
+                  stroke-opacity="0.68"
+                />
+                <rect
+                  x="118"
+                  y="140"
+                  width="40"
+                  height="64"
+                  fill="url(#hubFbPipe)"
+                  stroke-opacity="0.5"
+                />
+                <rect
+                  x="110"
+                  y="136"
+                  width="56"
+                  height="16"
+                  rx="3"
+                  fill="url(#hubFbPipe)"
+                  stroke-opacity="0.68"
+                />
+              </g>
+
+              <g fill="#f2b237" opacity="0.8">
+                <rect x="114" y="52" width="48" height="2.6" rx="1.3" />
+                <rect x="114" y="145.4" width="48" height="2.6" rx="1.3" />
+              </g>
+
+              <g transform="translate(74 100) rotate(-8)">
+                <ellipse
+                  cx="0"
+                  cy="0"
+                  rx="24"
+                  ry="21"
+                  fill="url(#hubFbBody)"
+                />
+                <ellipse
+                  cx="-1"
+                  cy="-8"
+                  rx="12"
+                  ry="4"
+                  fill="#ffffff"
+                  opacity="0.22"
+                />
+                <circle cx="8" cy="-6" r="6.6" fill="#f5f5f5" />
+                <circle cx="9.6" cy="-6" r="3" fill="#112129" />
+                <path d="M24 -1 L36 -4 L35 5 Z" fill="#f2b237" />
+                <ellipse
+                  cx="-4"
+                  cy="7"
+                  rx="12"
+                  ry="6.5"
+                  fill="#f2b237"
+                  transform="rotate(-18 -4 7)"
+                />
+              </g>
+            </svg>
+          </div>
+
+          <div class="game-card__body">
+            <h2 class="game-card__name">Flappy bird</h2>
+            <p class="game-card__meta">Arcade · Tap to fly</p>
+          </div>
+
+          <span class="game-card__play">Play</span>
+        </a>
+
+        <a class="game-card" href="./traffic-rush/index.html">
+          <div class="game-card__preview">
+            <svg
+              class="game-icon"
+              viewBox="0 0 200 200"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <defs>
+                <radialGradient id="hubTrGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#31c4be" stop-opacity="0.14" />
+                  <stop offset="1" stop-color="#31c4be" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="hubTrRoad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#172831" />
+                  <stop offset="0.18" stop-color="#203842" />
+                  <stop offset="0.5" stop-color="#243f4a" />
+                  <stop offset="0.82" stop-color="#203842" />
+                  <stop offset="1" stop-color="#172831" />
+                </linearGradient>
+                <linearGradient id="hubTrPlayer" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#1f837f" />
+                  <stop offset="0.4" stop-color="#4ad6d0" />
+                  <stop offset="1" stop-color="#269a95" />
+                </linearGradient>
+                <linearGradient id="hubTrAmber" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#b87f1f" />
+                  <stop offset="0.45" stop-color="#f7c65a" />
+                  <stop offset="1" stop-color="#d99c2b" />
+                </linearGradient>
+                <linearGradient id="hubTrIce" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#7d949f" />
+                  <stop offset="0.45" stop-color="#c3d5dd" />
+                  <stop offset="1" stop-color="#96adb7" />
+                </linearGradient>
+                <clipPath id="hubTrRoadClip">
+                  <rect x="44" y="4" width="112" height="192" rx="10" />
+                </clipPath>
+              </defs>
+
+              <circle cx="100" cy="100" r="90" fill="url(#hubTrGlow)" />
+
+              <rect
+                x="44"
+                y="4"
+                width="112"
+                height="192"
+                rx="10"
+                fill="url(#hubTrRoad)"
+              />
+
+              <g clip-path="url(#hubTrRoadClip)">
+                <g
+                  stroke="#a8bec9"
+                  stroke-opacity="0.45"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-dasharray="11 13"
+                >
+                  <line x1="81.3" y1="-10" x2="81.3" y2="210" />
+                  <line x1="118.7" y1="-10" x2="118.7" y2="210" />
+                </g>
+
+                <rect
+                  x="47"
+                  y="4"
+                  width="2.2"
+                  height="192"
+                  fill="#31c4be"
+                  opacity="0.55"
+                />
+                <rect
+                  x="150.8"
+                  y="4"
+                  width="2.2"
+                  height="192"
+                  fill="#31c4be"
+                  opacity="0.55"
+                />
+                <rect
+                  x="51"
+                  y="4"
+                  width="1.4"
+                  height="192"
+                  fill="#f2b237"
+                  opacity="0.55"
+                />
+                <rect
+                  x="147.6"
+                  y="4"
+                  width="1.4"
+                  height="192"
+                  fill="#f2b237"
+                  opacity="0.55"
+                />
+              </g>
+
+              <!-- Amber car, left lane -->
+              <g transform="translate(62.7 52)">
+                <g fill="#0a151a">
+                  <rect x="-18" y="-17" width="5" height="11" rx="2.5" />
+                  <rect x="13" y="-17" width="5" height="11" rx="2.5" />
+                  <rect x="-18" y="7" width="5" height="11" rx="2.5" />
+                  <rect x="13" y="7" width="5" height="11" rx="2.5" />
+                </g>
+                <rect
+                  x="-15"
+                  y="-25"
+                  width="30"
+                  height="50"
+                  rx="8"
+                  fill="url(#hubTrAmber)"
+                  stroke="#ffecbe"
+                  stroke-opacity="0.32"
+                  stroke-width="1.2"
+                />
+                <rect
+                  x="-10"
+                  y="-17"
+                  width="20"
+                  height="10"
+                  rx="3.5"
+                  fill="#192a32"
+                />
+                <rect
+                  x="-10"
+                  y="8"
+                  width="20"
+                  height="9"
+                  rx="3.5"
+                  fill="#192a32"
+                  opacity="0.9"
+                />
+                <g fill="#dffbff">
+                  <rect x="-10" y="-25" width="6" height="2.4" rx="1.2" />
+                  <rect x="4" y="-25" width="6" height="2.4" rx="1.2" />
+                </g>
+                <g fill="#f7a23a">
+                  <rect x="-10" y="22.8" width="6" height="2.2" rx="1.1" />
+                  <rect x="4" y="22.8" width="6" height="2.2" rx="1.1" />
+                </g>
+              </g>
+
+              <!-- Player car, centre lane -->
+              <g transform="translate(100 102)">
+                <ellipse
+                  cx="0"
+                  cy="0"
+                  rx="24"
+                  ry="36"
+                  fill="#31c4be"
+                  opacity="0.16"
+                />
+                <g fill="#0a151a">
+                  <rect x="-19" y="-23" width="5.5" height="13" rx="2.6" />
+                  <rect x="13.5" y="-23" width="5.5" height="13" rx="2.6" />
+                  <rect x="-19" y="9" width="5.5" height="13" rx="2.6" />
+                  <rect x="13.5" y="9" width="5.5" height="13" rx="2.6" />
+                </g>
+                <rect
+                  x="-16"
+                  y="-31"
+                  width="32"
+                  height="62"
+                  rx="9"
+                  fill="url(#hubTrPlayer)"
+                  stroke="#31c4be"
+                  stroke-opacity="0.85"
+                  stroke-width="1.2"
+                />
+                <rect
+                  x="-11"
+                  y="-23"
+                  width="22"
+                  height="13"
+                  rx="4"
+                  fill="#192a32"
+                />
+                <rect
+                  x="-10"
+                  y="-5"
+                  width="20"
+                  height="15"
+                  rx="4"
+                  fill="#112129"
+                  opacity="0.28"
+                />
+                <rect
+                  x="-11"
+                  y="11"
+                  width="22"
+                  height="10"
+                  rx="4"
+                  fill="#192a32"
+                />
+                <g fill="#f2b237">
+                  <rect x="-5" y="-29" width="3" height="58" rx="1.5" />
+                  <rect x="2" y="-29" width="3" height="58" rx="1.5" />
+                  <rect x="-13" y="27" width="26" height="3" rx="1.5" />
+                </g>
+                <g fill="#dffbff">
+                  <rect x="-11" y="-30.4" width="6" height="2.4" rx="1.2" />
+                  <rect x="5" y="-30.4" width="6" height="2.4" rx="1.2" />
+                </g>
+                <g fill="#f7a23a">
+                  <rect x="-10" y="29" width="6" height="2.2" rx="1.1" />
+                  <rect x="4" y="29" width="6" height="2.2" rx="1.1" />
+                </g>
+              </g>
+
+              <!-- Frost car, right lane -->
+              <g transform="translate(137.3 156)">
+                <g fill="#0a151a">
+                  <rect x="-18" y="-19" width="5" height="12" rx="2.5" />
+                  <rect x="13" y="-19" width="5" height="12" rx="2.5" />
+                  <rect x="-18" y="8" width="5" height="12" rx="2.5" />
+                  <rect x="13" y="8" width="5" height="12" rx="2.5" />
+                </g>
+                <rect
+                  x="-15"
+                  y="-27"
+                  width="30"
+                  height="54"
+                  rx="7"
+                  fill="url(#hubTrIce)"
+                  stroke="#f5f5f5"
+                  stroke-opacity="0.3"
+                  stroke-width="1.2"
+                />
+                <rect
+                  x="-10"
+                  y="-19"
+                  width="20"
+                  height="11"
+                  rx="3.5"
+                  fill="#192a32"
+                />
+                <rect
+                  x="-9"
+                  y="-4"
+                  width="18"
+                  height="12"
+                  rx="3.5"
+                  fill="#233d4a"
+                  opacity="0.35"
+                />
+                <rect
+                  x="-10"
+                  y="10"
+                  width="20"
+                  height="10"
+                  rx="3.5"
+                  fill="#192a32"
+                  opacity="0.9"
+                />
+                <g fill="#dffbff">
+                  <rect x="-10" y="-27" width="6" height="2.4" rx="1.2" />
+                  <rect x="4" y="-27" width="6" height="2.4" rx="1.2" />
+                </g>
+                <g fill="#f7a23a">
+                  <rect x="-10" y="24.8" width="6" height="2.2" rx="1.1" />
+                  <rect x="4" y="24.8" width="6" height="2.2" rx="1.1" />
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <div class="game-card__body">
+            <h2 class="game-card__name">Traffic Rush</h2>
+            <p class="game-card__meta">Arcade · Dodge traffic</p>
+          </div>
+
+          <span class="game-card__play">Play</span>
+        </a>
       </section>
 
       <footer class="hub__footer">
         <span>Made for quick matches</span>
         <span class="hub__dot" aria-hidden="true"></span>
         <span>No install needed</span>
+        <span>Developed with love❤️ by Ibrahim Saeed ❤️</span>
       </footer>
     </main>
   </body>

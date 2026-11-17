@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Traffic Rush on IS Games. Switch lanes, dodge traffic and beat your high score."
+    />
+    <meta name="theme-color" content="#112129" />
+    <title>Traffic Rush | IS Games</title>
+    <link rel="stylesheet" href="style.css?v=3" />
+  </head>
+
+  <body>
+    <main class="traffic-game">
+      <div class="traffic-game__corner">
+        <a
+          class="traffic-game__back"
+          href="../index.html"
+          aria-label="العودة إلى صفحة الألعاب"
+        >
+          <span class="traffic-game__back-icon" aria-hidden="true">←</span>
+          <span>Back</span>
+        </a>
+
+        <button
+          class="traffic-game__pause"
+          id="pauseBtn"
+          type="button"
+          aria-label="إيقاف مؤقت"
+          title="إيقاف مؤقت: اضغط الزر أو Esc أو انقر مرتين على الطريق"
+          hidden
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="7" y="5" width="3.6" height="14" rx="1.3"></rect>
+            <rect x="13.4" y="5" width="3.6" height="14" rx="1.3"></rect>
+          </svg>
+        </button>
+      </div>
+
+      <header class="traffic-game__header">
+        <span class="traffic-game__eyebrow">IS GAMES · ARCADE</span>
+        <h1 class="traffic-game__title">Traffic <span>Rush</span></h1>
+        <p class="traffic-game__subtitle">تجنب السيارات واجمع النقاط.</p>
+      </header>
+
+      <section class="traffic-game__content" aria-label="منطقة اللعب">
+        <div class="traffic-game__board" id="gameBoard">
+          <canvas
+            id="gameCanvas"
+            width="360"
+            height="640"
+            aria-label="لعبة Traffic Rush. انتقل بين الحارات لتجنب السيارات."
+          >
+            متصفحك لا يدعم تشغيل Canvas.
+          </canvas>
+
+          <div
+            class="traffic-game__hud"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div class="traffic-game__hud-card">
+              <span class="traffic-game__hud-label">النقاط</span>
+              <span class="traffic-game__hud-value" id="scoreDisplay">0</span>
+            </div>
+
+            <div class="traffic-game__hud-card traffic-game__hud-card--best">
+              <span class="traffic-game__hud-star" aria-hidden="true">★</span>
+              <span class="traffic-game__hud-label">الأفضل</span>
+              <span
+                class="traffic-game__hud-value traffic-game__hud-value--best"
+                id="bestScoreDisplay"
+                >0</span
+              >
+            </div>
+          </div>
+
+          <div class="traffic-game__touch" aria-label="أزرار تغيير الحارة">
+            <button
+              class="traffic-game__touch-btn"
+              id="rightBtn"
+              type="button"
+              aria-label="الحارة اليمنى"
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+
+            <button
+              class="traffic-game__touch-btn"
+              id="leftBtn"
+              type="button"
+              aria-label="الحارة اليسرى"
+            >
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+
+          <div
+            class="traffic-game__overlay traffic-game__overlay--start"
+            id="startOverlay"
+          >
+            <div class="traffic-game__panel">
+              <p class="traffic-game__panel-eyebrow">IS GAMES ARCADE</p>
+              <h2 class="traffic-game__panel-title" dir="ltr">
+                TRAFFIC <span>RUSH</span>
+              </h2>
+              <p class="traffic-game__panel-text">
+                تجنب السيارات واجمع النقاط.
+              </p>
+
+              <div class="traffic-game__panel-best">
+                <span aria-hidden="true">★</span>
+                <span>أفضل نتيجة</span>
+                <strong id="startBest">0</strong>
+              </div>
+
+              <button class="traffic-game__cta" id="startBtn" type="button">
+                ابدأ اللعبة
+              </button>
+              <p class="traffic-game__panel-hint">
+                ← → أو A / D · اسحب يمين أو شمال
+              </p>
+            </div>
+          </div>
+
+          <div class="traffic-game__overlay" id="gameOverOverlay" hidden>
+            <div class="traffic-game__panel traffic-game__panel--over">
+              <p class="traffic-game__panel-eyebrow" id="overEyebrow">
+                GAME OVER
+              </p>
+              <h2
+                class="traffic-game__panel-title traffic-game__panel-title--over"
+                id="overTitle"
+              >
+                انتهت اللعبة
+              </h2>
+              <p class="traffic-game__panel-text" id="overMessage">
+                اصطدمت! حاول مرة أخرى.
+              </p>
+
+              <div class="traffic-game__results">
+                <div class="traffic-game__result">
+                  <span class="traffic-game__result-label">النقاط</span>
+                  <strong class="traffic-game__result-value" id="finalScore"
+                    >0</strong
+                  >
+                </div>
+                <div class="traffic-game__result traffic-game__result--best">
+                  <span class="traffic-game__result-label">الأفضل</span>
+                  <strong class="traffic-game__result-value" id="finalBest"
+                    >0</strong
+                  >
+                </div>
+              </div>
+
+              <button class="traffic-game__cta" id="restartBtn" type="button">
+                العب مرة أخرى
+              </button>
+              <a class="traffic-game__panel-link" href="../index.html">
+                <span aria-hidden="true">→</span>
+                <span>العودة للألعاب</span>
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="traffic-game__overlay traffic-game__overlay--pause"
+            id="pauseOverlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pauseTitle"
+            hidden
+          >
+            <div class="traffic-game__panel traffic-game__panel--pause">
+              <p class="traffic-game__panel-eyebrow">PAUSED</p>
+              <h2 class="traffic-game__panel-title" id="pauseTitle">
+                إيقاف مؤقت
+              </h2>
+              <p class="traffic-game__panel-text">
+                اللعبة متوقفة. أكمل من حيث توقفت.
+              </p>
+
+              <div class="traffic-game__results">
+                <div class="traffic-game__result">
+                  <span class="traffic-game__result-label">النقاط</span>
+                  <strong class="traffic-game__result-value" id="pauseScore"
+                    >0</strong
+                  >
+                </div>
+                <div class="traffic-game__result traffic-game__result--best">
+                  <span class="traffic-game__result-label">الأفضل</span>
+                  <strong class="traffic-game__result-value" id="pauseBest"
+                    >0</strong
+                  >
+                </div>
+              </div>
+
+              <button class="traffic-game__cta" id="resumeBtn" type="button">
+                متابعة
+              </button>
+              <button
+                class="traffic-game__cta traffic-game__cta--ghost"
+                id="pauseRestartBtn"
+                type="button"
+              >
+                إعادة اللعبة
+              </button>
+              <p class="traffic-game__panel-hint">
+                للاستئناف اضغط متابعة أو Esc أو انقر مرتين خارج اللوحة.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p class="traffic-game__hint">
+          ← → / A-D أو اسحب لتغيير الحارة · للإيقاف: زر الإيقاف أو Esc أو انقر مرتين
+          على الطريق
+        </p>
+      </section>
+
+      <footer class="traffic-game__footer">
+        <span>IS Games</span>
+        <span class="traffic-game__dot"></span>
+        <span>Traffic Rush</span>
+        <span class="traffic-game__dot"></span>
+        <span>Play. Challenge. Enjoy.</span>
+      </footer>
+    </main>
+
+    <script src="../sounds.js?v=1"></script>
+    <script type="module" src="./js/main.js?v=3"></script>
+  </body>
+</html>
