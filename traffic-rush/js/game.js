@@ -84,6 +84,8 @@ export function initGame() {
   gameState.lastStyleIndex = -1;
   gameState.multiStreak = 0;
   gameState.lastSpawnAt = 0;
+  gameState.laneSpawnCounts = Array(layout.laneCount).fill(0);
+  gameState.lastBlockedSignature = "";
 
   seedIdleTraffic(gameState);
 
@@ -113,6 +115,8 @@ export function startGame() {
   gameState.lastStyleIndex = -1;
   gameState.multiStreak = 0;
   gameState.lastSpawnAt = 0;
+  gameState.laneSpawnCounts = Array(layout.laneCount).fill(0);
+  gameState.lastBlockedSignature = "";
 
   if (!gameState.player) gameState.player = createPlayer();
   resetPlayer(gameState.player);
@@ -313,6 +317,11 @@ setResizeHandler((oldW, oldH, oldLaneCount) => {
   gameState.scroll *= ratioY;
 
   snapPlayerToLane(gameState.player);
+
+  if (oldLaneCount !== layout.laneCount) {
+    gameState.laneSpawnCounts = Array(layout.laneCount).fill(0);
+    gameState.lastBlockedSignature = "";
+  }
 
   const speed =
     gameState.status === "idle"

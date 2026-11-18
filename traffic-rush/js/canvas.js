@@ -45,8 +45,8 @@ export function getLaneCenter(lane) {
 /*
  * Chooses the lane count from the space actually available to the road.
  *
- * A comfortable lane is around preferredLaneWidth wide. Very narrow screens
- * still get two usable lanes, while wide screens grow to four or five. The
+ * A comfortable lane is around preferredLaneWidth wide. Every layout keeps at
+ * least three usable lanes, while wide screens grow to four or five. The
  * minimum lane width acts as a hard lower bound so cars never end up wedged
  * against a lane edge.
  */

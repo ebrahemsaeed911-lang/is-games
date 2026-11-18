@@ -42,6 +42,8 @@ export const gameState = {
   lastStyleIndex: -1,
   multiStreak: 0,
   lastSpawnAt: 0,
+  laneSpawnCounts: [],
+  lastBlockedSignature: "",
 
   animId: null,
   lastFrameTime: 0,

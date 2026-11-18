@@ -11,8 +11,8 @@ export const COLORS = {
 
 export const CONFIG = {
   // Dynamic road geometry. The lane count is derived from the canvas width and
-  // the comfortable lane width below; it is never hardcoded to three lanes.
-  minLanes: 2,
+  // the comfortable lane width below, with at least three lanes on every layout.
+  minLanes: 3,
   maxLanes: 5,
   minLaneWidth: 100,
   preferredLaneWidth: 188,

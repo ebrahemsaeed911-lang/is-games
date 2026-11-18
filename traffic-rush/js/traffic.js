@@ -6,17 +6,23 @@ function randomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-function shuffled(values) {
-  const result = values.slice();
+// Picks one value with probability proportional to its weight. Used to spread
+// blocked lanes away from the lanes that have been used the most.
+function pickWeighted(values, weightOf) {
+  const weights = values.map((value) => Math.max(0, weightOf(value)));
+  const total = weights.reduce((sum, weight) => sum + weight, 0);
 
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = randomInt(i + 1);
-    const temp = result[i];
-    result[i] = result[j];
-    result[j] = temp;
+  if (!total) return values[randomInt(values.length)];
+
+  let roll = Math.random() * total;
+
+  for (let i = 0; i < values.length; i++) {
+    roll -= weights[i];
+
+    if (roll < 0) return values[i];
   }
 
-  return result;
+  return values[values.length - 1];
 }
 
 function getLanes() {
@@ -25,6 +31,10 @@ function getLanes() {
 
 function clampLane(lane) {
   return Math.max(0, Math.min(Math.max(0, layout.laneCount - 1), lane));
+}
+
+function laneSignature(lanes) {
+  return lanes.slice().sort((a, b) => a - b).join("-");
 }
 
 function pickStyleIndex(state) {
@@ -132,6 +142,26 @@ function laneEscapePlan(state, lane, speed, arrivalStart, arrivalEnd) {
   return { freeAt };
 }
 
+/*
+ * Time until the next car reaches the player's bumper in this lane. Used to
+ * make sure a planned escape can actually be reached before the player's
+ * current lane is hit.
+ */
+function laneHitAt(state, lane, speed) {
+  let hitAt = Infinity;
+
+  for (const car of state.cars) {
+    if (car.lane !== lane) continue;
+
+    const height = enemyHeight(ENEMY_STYLES[car.styleIndex]);
+    const start = (layout.playerTop - (car.y + height)) / speed;
+
+    if (start >= 0) hitAt = Math.min(hitAt, start);
+  }
+
+  return hitAt;
+}
+
 function evaluateEscapeLanes(
   state,
   blockedLanes,
@@ -149,6 +179,7 @@ function evaluateEscapeLanes(
   const spawnY = spawnYFor(waveHeight);
   const arrivalStart = (layout.playerTop - (spawnY + waveHeight)) / speed;
   const arrivalEnd = (layout.playerTop + layout.carH - spawnY) / speed;
+  const playerHitAt = laneHitAt(state, playerLane, speed);
 
   const candidates = [];
 
@@ -173,6 +204,18 @@ function evaluateEscapeLanes(
 
     if (readyAt > arrivalStart - buffer) continue;
 
+    // A lane is only a real escape if the player lives long enough to use it.
+    // On wider roads the player's own lane counts as an escape only when it is
+    // not about to be hit, and a lane change must fit before the current lane
+    // is reached.
+    if (layout.laneCount > 2) {
+      if (distance === 0) {
+        if (playerHitAt < arrivalStart - buffer) continue;
+      } else if (readyAt > playerHitAt - buffer) {
+        continue;
+      }
+    }
+
     candidates.push({ lane, distance, readyAt });
   }
 
@@ -184,9 +227,25 @@ function evaluateEscapeLanes(
 
   return {
     safeLane: candidates[0].lane,
+    wait: candidates[0].readyAt,
     arrivalStart,
     arrivalEnd,
   };
+}
+
+/*
+ * Lexicographic comparison of two fairness tuples: the first smaller value
+ * wins. Keeps the pattern preference rules in one place instead of repeating
+ * the whole chain of conditions for every result.
+ */
+function isFairer(candidate, best) {
+  for (let index = 0; index < candidate.length; index += 1) {
+    if (candidate[index] !== best[index]) {
+      return candidate[index] < best[index];
+    }
+  }
+
+  return false;
 }
 
 /*
@@ -195,6 +254,11 @@ function evaluateEscapeLanes(
  * The primary lane is always reachable from both the player's current lane and
  * the previous safe lane. Extra lanes are added for easier patterns, which
  * makes the road feel busy without ever closing every escape route.
+ *
+ * Lanes that have absorbed more traffic recently are preferred as open lanes,
+ * so the blocked lanes rotate across the whole road instead of piling up in the
+ * same few lanes. The previous safe lane is skipped while other candidates are
+ * available, which keeps the safe passage moving.
  */
 function buildOpenSet(state, lanes, playerLane, openCount) {
   const near = lanes.filter(
@@ -209,9 +273,26 @@ function buildOpenSet(state, lanes, playerLane, openCount) {
       CONFIG.maxPathLaneChanges,
   );
   const pool = smooth.length ? smooth : near;
-  const primary = pool[randomInt(pool.length)];
+  const previousSafe = clampLane(state.lastSafeLane);
+  const rotated =
+    pool.length > 1 ? pool.filter((lane) => lane !== previousSafe) : pool;
+  const candidates = rotated.length ? rotated : pool;
+
+  // Weight by recent usage: a busy lane becomes an open lane sooner, so the
+  // road drains evenly instead of protecting whichever lane is least used.
+  const primary = pickWeighted(
+    candidates,
+    (lane) => (state.laneSpawnCounts[lane] ?? 0) + 1,
+  );
   const open = [primary];
-  const rest = shuffled(lanes.filter((lane) => lane !== primary));
+  const rest = lanes
+    .filter((lane) => lane !== primary)
+    .sort(
+      (a, b) =>
+        (state.laneSpawnCounts[a] ?? 0) -
+        (state.laneSpawnCounts[b] ?? 0) ||
+        Math.random() - 0.5,
+    );
 
   while (open.length < openCount && rest.length) {
     open.push(rest.pop());
@@ -314,6 +395,9 @@ function choosePattern(state, speed, playerLane, idle) {
   const laneCount = lanes.length;
   const safePlayerLane = clampLane(playerLane);
   const options = {};
+  while (state.laneSpawnCounts.length < laneCount) {
+    state.laneSpawnCounts.push(0);
+  }
 
   for (const lane of lanes) {
     options[lane] = findLaneOption(state, lane, speed);
@@ -340,9 +424,11 @@ function choosePattern(state, speed, playerLane, idle) {
   for (let blockCount = desiredBlockCount; blockCount >= 1; blockCount--) {
     const openCount = laneCount - blockCount;
     const attempts = Math.max(8, laneCount * 4);
+    let bestPattern = null;
+    let bestFairness = null;
 
     for (let attempt = 0; attempt < attempts; attempt++) {
-      const openLanes = buildOpenSet(
+      let openLanes = buildOpenSet(
         state,
         lanes,
         safePlayerLane,
@@ -355,14 +441,6 @@ function choosePattern(state, speed, playerLane, idle) {
 
       if (!blocked.every((lane) => options[lane])) continue;
 
-      if (
-        blockCount === 1 &&
-        blocked[0] === state.lastSingleLane &&
-        Math.random() < 0.6
-      ) {
-        continue;
-      }
-
       const escape = evaluateEscapeLanes(
         state,
         blocked,
@@ -374,13 +452,41 @@ function choosePattern(state, speed, playerLane, idle) {
 
       if (!escape) continue;
 
-      return {
-        blocked,
-        safeLane: escape.safeLane,
-        multi: blocked.length >= 2,
-        options,
-      };
+      const blockedCounts = blocked.map(
+        (lane) => state.laneSpawnCounts[lane] ?? 0,
+      );
+      const highestCount = Math.max(...blockedCounts);
+      const totalCount = blockedCounts.reduce((sum, count) => sum + count, 0);
+      const lowestCount = Math.min(...blockedCounts);
+      const usageSpread = highestCount - lowestCount;
+      const signature = laneSignature(blocked);
+      const repeatsLast = signature === state.lastBlockedSignature ? 1 : 0;
+
+      // Prefer a pattern whose escape lane is usable right away, so the player
+      // never has to wait inside a lane that already has traffic bearing down
+      // on it. Patterns that need a short wait are still accepted when no
+      // immediate escape exists, which keeps traffic flowing.
+      const delayedEscape = escape.wait > 0.001 ? 1 : 0;
+      const fairness = [
+        delayedEscape,
+        repeatsLast,
+        usageSpread,
+        highestCount,
+        totalCount,
+      ];
+
+      if (!bestFairness || isFairer(fairness, bestFairness)) {
+        bestFairness = fairness;
+        bestPattern = {
+          blocked,
+          safeLane: escape.safeLane,
+          multi: blocked.length >= 2,
+          options,
+        };
+      }
     }
+
+    if (bestPattern) return bestPattern;
   }
 
   return null;
@@ -417,11 +523,14 @@ export function spawnWave(
     const option = pattern.options[lane];
 
     state.cars.push(createEnemy(lane, option.y, option.styleIndex));
+    state.laneSpawnCounts[lane] =
+      (state.laneSpawnCounts[lane] ?? 0) + 1;
     state.lastStyleIndex = option.styleIndex;
   }
 
   state.lastSafeLane = clampLane(pattern.safeLane);
   state.lastSpawnAt = state.elapsed ?? 0;
+  state.lastBlockedSignature = laneSignature(pattern.blocked);
 
   if (pattern.multi) {
     state.multiStreak += 1;
@@ -437,15 +546,17 @@ export function seedIdleTraffic(state) {
   state.cars = [];
 
   const lanes = getLanes();
-  const firstLane = lanes[0] ?? 0;
-  const lastLane = lanes[lanes.length - 1] ?? firstLane;
-  const firstStyle = pickStyleIndex(state);
-  const secondStyle = pickStyleIndex(state);
+  const spacing = Math.max(0.75, 1.05 - lanes.length * 0.08);
 
-  state.cars.push(createEnemy(firstLane, layout.carH * 0.15, firstStyle));
+  lanes.forEach((lane, index) => {
+    const y = layout.carH * (0.15 + index * spacing);
+    const styleIndex = pickStyleIndex(state);
+    state.cars.push(createEnemy(lane, y, styleIndex));
+  });
 
-  if (lastLane !== firstLane) {
-    state.cars.push(createEnemy(lastLane, layout.carH * 1.05, secondStyle));
+  for (const lane of lanes) {
+    state.laneSpawnCounts[lane] =
+      (state.laneSpawnCounts[lane] ?? 0) + 1;
   }
 }
 
@@ -541,7 +652,8 @@ export function updateTraffic(state, delta, speed, { score = true } = {}) {
   return passed;
 }
 
-export function drawTraffic(ctx, cars) {  for (const car of cars) {
+export function drawTraffic(ctx, cars) {
+  for (const car of cars) {
     const style = ENEMY_STYLES[car.styleIndex];
     const width = layout.carW * style.widthFactor;
     const height = layout.carH * style.lengthFactor;
@@ -562,8 +674,3 @@ export function drawTraffic(ctx, cars) {  for (const car of cars) {
     );
   }
 }
-
-
-
-
-
