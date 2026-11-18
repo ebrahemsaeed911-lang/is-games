@@ -108,7 +108,7 @@ python -m http.server 8765
 
 ```
 is-games/
-├── index.html            # home screen with the two game cards
+├── index.html            # game hub
 ├── style.css             # home screen styles
 ├── mode.html             # "friend or computer" screen (shared by both games)
 ├── mode.css              # mode screen styles
@@ -119,6 +119,28 @@ is-games/
 ├── apple-touch-icon.png  # 180x180 icon for iOS
 ├── pattern.jpg           # background artwork
 ├── docs/                 # screenshots used in this README
+├── basket-ball/
+│   ├── basketball.html
+│   ├── style.css
+│   └── js/
+│           ├── config.js     # logical court, physics and independent visual settings
+│       ├── controls.js   # pointer and touch input
+│           ├── collisions.js # logical rim, board and court boundaries
+│       ├── effects.js    # score particles and net response
+│       ├── game.js       # round state and animation loop
+│       ├── main.js       # Canvas setup and lifecycle
+│           ├── physics.js    # ball integration
+│       ├── physics.test.js
+│       ├── scoring.js    # basket validation, score and duplicate-shot prevention
+│       ├── scoring.test.js
+│           ├── gameplay-regression.test.js
+│       ├── shooting.js   # drag power and trajectory preview
+│       ├── shooting.test.js
+│       ├── storage.js    # personal-best persistence
+│       ├── storage.test.js
+│           ├── viewport.js   # screen/world coordinate transforms
+│           ├── viewport.test.js
+│       └── ui.js         # Canvas rendering and HUD updates
 ├── sega/
 │   ├── index.html
 │   ├── ai.js             # move-based model for the computer opponent
@@ -142,6 +164,7 @@ Plain HTML, CSS and JavaScript. No frameworks, no bundler, no npm install.
 - The computer's move is delayed by 420–680 ms so the reply feels deliberate, and the board ignores clicks until it lands.
 - Sounds are short oscillator envelopes scheduled on a lazily created `AudioContext` (browsers require a user gesture first).
 - The mute preference is stored in `localStorage`.
+- Basketball Arcade uses a device-pixel-ratio-aware Canvas and a fixed logical court. `viewport.js` transforms pointer and render coordinates without rescaling physics; `physics.js`, `collisions.js`, `scoring.js` and `ui.js` keep those responsibilities separate. `gameplay-regression.test.js` checks that viewport and visual-size changes do not change a shot's trajectory or score.
 
 ### Browser support
 
